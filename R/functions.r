@@ -13,8 +13,6 @@ fun.policz.zwroty <- function ( dane.ceny , data.poczatkowa , data.koncowa)
 }
 
 
-
-
 # zwraca trajektorie symulacji
 # t - długość symulacji (1 to jeden rok) [u nas w zadaniu 1]
 # S_0 - wartość w chwili zero
@@ -40,7 +38,7 @@ fun.symuluj.1dim <- function (t, S_0, mean, sd, daty, ile) {
       temp[j] <- temp[j-1]*exp((mean - 1/2*sd^2)*skok + sd*(norm[2]*sqrt(skok) - norm[2])) ## TODO sprawdzenie tego wzroru
     }
     
-    results <- cbind(results, sym = temp)
+    results <- cbind(results, temp)
   }
     
   results[1,1:ile+1] <- S_0
@@ -53,4 +51,17 @@ fun.symuluj.1dim <- function (t, S_0, mean, sd, daty, ile) {
 zapisz.wykres <- function(x,h=9,w=18,d=100)
 {
   ggsave(plot=x, file=sprintf("./images/%s/%s.png",param.string,deparse(substitute(x))),height=h,width=w,dpi=d)
+}
+
+
+#### funkcja do liczenia payoffu ####
+payoff <- function(notowania, typ, strike)
+{
+  # typ 0 to call
+  # typ 1 to put
+  
+  if(typ == 0) 
+    return( pmax(notowania-strike, 0))
+  if(typ == 1) 
+    return( pmax(strike-notowania, 0) ) 
 }
