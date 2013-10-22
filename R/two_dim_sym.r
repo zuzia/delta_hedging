@@ -18,9 +18,7 @@ fun.symuluj.2dim <- function (t, S_0, mean, sd, corr, daty, ile) {
     temp2 <- c(S_0[2], rep(0, length(daty)-1))
     
     for(j in 2:length(daty)){
-      unif1 <- runif(1)
-      unif2 <- runif(1)
-      norm <- two_dim_norm(mean, sd[1], sd[2], corr)
+			norm <- two_dim_norm(c(0,0), 1, 1, corr) ##TODO zmienic to bo brzydal
       
       temp1[j] <- temp1[j-1]*exp((mean[1] - 1/2*sd[1]^2)*skok + sd[1]*(norm[1]*sqrt(skok) - norm[1]))
       temp2[j] <- temp2[j-1]*exp((mean[2] - 1/2*sd[2]^2)*skok + sd[2]*(norm[2]*sqrt(skok) - norm[2]))
@@ -33,7 +31,7 @@ fun.symuluj.2dim <- function (t, S_0, mean, sd, corr, daty, ile) {
   results1[1,1:ile+1] <- S_0[1]
 	results2[1,1:ile+1] <- S_0[2]
   
-  return (c(results1,results2)) ##TODO jak zwracac?
+  return (list(results1,results2))
 }
 
 ## wywolanie
