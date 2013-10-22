@@ -16,6 +16,7 @@ komputer <- Sys.info()["nodename"]
     setwd("")
 }
 source("R\\functions.r")  
+source("R\\charts.r")  
 
 
 #############################################################################################
@@ -37,7 +38,7 @@ dane.WIG20 <- read.csv("./R/data/wig20.csv")
 dane.przyszle.KGHM <- read.csv("./R/data/kghm_future.csv")
 dane.przyszle.WIG20 <- read.csv("./R/data/wig20_future.csv")
 
-dane.ceny.akcji = data.frame(data=dane.KGHM[,2],
+dane.ceny.akcji = data.frame(data=dane.KGHM[,1],
                              KGHM=dane.KGHM[,5],
                              WIG20=dane.WIG20[,5],
                              stringsAsFactors=FALSE)
@@ -68,12 +69,25 @@ dane.kowariancja <- cov(dane.zwrotyAkcji[,1],
 #############################################################################################    	
 
 
-dane.symulacja.WIG20 <- fun.symuluj.1dim(1,
+dane.symulacja.1dim.WIG20 <- fun.symuluj.1dim(1,
                                          dane.WIG20[1,5],
                                          dane.mean.WIG20,
                                          dane.sd.WIG20,
                                          dane.przyszle.WIG20[,1],
                                          4)
+
+
+
+kolor.kwantyle.WIG20 <- "#E1017B"
+kolor.linia.WIG20 <- "#720FCC"
+
+
+wykres.WIG20 <- rysuj.symulacje(dane.symulacja.1dim.WIG20,
+                                 dane.przyszle.WIG20[,5],
+                                 4,
+                                 kolor.kwantyle.WIG20,
+                                 kolor.linia.WIG20,
+                                 "WIG20")
 
 
 
