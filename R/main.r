@@ -27,6 +27,11 @@ set.seed(666)
 param.ile.symulacji <- 1000
 param.data.poczatek <- "2010-02-01"
 param.data.koniec <- "2011-02-01"
+param.data.sym.poczatek <- "2011-02-01"
+param.data.sym.koniec <- "2012-02-01"
+param.string <- "1"
+
+dir.create(sprintf("./images/%s",param.string),showWarnings=F)
 
 #############################################################################################
 # wczytanie danych
@@ -46,6 +51,8 @@ dane.ceny.akcji = data.frame(data=dane.KGHM[,1],
 dane.zwrotyAkcji <- fun.policz.zwroty(dane.ceny.akcji,
                                       param.data.poczatek,
                                       param.data.koniec)
+
+#dane.ceny.akcji[159,2]
 
 #############################################################################################
 # estymacja
@@ -70,26 +77,43 @@ dane.kowariancja <- cov(dane.zwrotyAkcji[,1],
 
 
 dane.symulacja.1dim.WIG20 <- fun.symuluj.1dim(1,
-                                         dane.WIG20[1,5],
+                                         dane.przyszle.WIG20[1,5],
                                          dane.mean.WIG20,
                                          dane.sd.WIG20,
                                          dane.przyszle.WIG20[,1],
-                                         4)
+                                         1000)
 
 
+#############################################################################################
+# zwroty
+#############################################################################################
+
+dane.zwroty.symulacji <- fun.policz.zwroty(dane.symulacja.1dim.WIG20[,1:4],
+                                      param.data.sym.poczatek,
+                                      param.data.sym.koniec)
+
+
+#############################################################################################
+# prezentacja
+#############################################################################################   
 
 kolor.kwantyle.WIG20 <- "#E1017B"
 kolor.linia.WIG20 <- "#720FCC"
 
-
-wykres.WIG20 <- rysuj.symulacje(dane.symulacja.1dim.WIG20,
+wykres.1dim.WIG20 <- rysuj.symulacje(dane.symulacja.1dim.WIG20,
                                  dane.przyszle.WIG20[,5],
-                                 4,
+                                 1000,
                                  kolor.kwantyle.WIG20,
                                  kolor.linia.WIG20,
                                  "WIG20")
 
 
 
+
+#############################################################################################
+# zapis
+#############################################################################################   
+
+zapisz.wykres(wykres.1dim.WIG20, 9, 18, 90)
 
 

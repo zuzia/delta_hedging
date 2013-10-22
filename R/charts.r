@@ -1,17 +1,10 @@
 
 rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.symulacji, kolor.kwantyle, kolor.linia, nazwa ="")
 {
-  
-  #####   do testów:#########
-  #   notowania.symulacje <- dane.symulacjeTAURON
-  #   notowania.faktyczne <- dane.przyszle[,"TAURONPE"]
-  #   liczba.symulacji <- param.ile.symulacji
-  #   kolor.kwantyla <- kolor.kwantyle.TAURON
-  #   kolor.linia <- kolor.linia.TAURON
-  #   nazwa <- "TAURON"
+
   
   rownames(notowania.symulacje) <- c()
-  liczba.dni <- 252
+  liczba.dni <- length(rownames(notowania.symulacje))
   pierwsza.symulacja <- 2 # numer kolumny, w ktorej znajduje sie 1 symulacja
   ostatnia.symulacja <- pierwsza.symulacja + liczba.symulacji - 1
   
@@ -25,7 +18,10 @@ rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.sym
   minimum <- apply(notowania.symulacje[, pierwsza.symulacja : ostatnia.symulacja], 1, min)
   maksimum <- apply(notowania.symulacje[, pierwsza.symulacja : ostatnia.symulacja], 1, max)
   
-  dane.do.wykresu <- data.frame(numer.notowania = rep(1 : liczba.dni, times = liczba.symulacji), notowanie = stack(notowania.symulacje[, pierwsza.symulacja : ostatnia.symulacja]))
+  dane.do.wykresu <- data.frame(numer.notowania = rep(1 : liczba.dni, times = liczba.symulacji),
+                                notowanie = stack(notowania.symulacje[, pierwsza.symulacja : ostatnia.symulacja]))
+  
+  
   dane.do.wykresu <- cbind(dane.do.wykresu, kwantyle)
   
   dane.do.wykresu <- cbind(dane.do.wykresu, minimum)
@@ -49,4 +45,30 @@ rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.sym
   
   return( wykres )
   
+}
+
+rysuj.histogram <- function(dane, szerokosc.slupka, kolor.niski, kolor.wysoki, kolor.faktyczny, kolor.sigma, notowanie.faktyczne, szerokosc.faktyczne = 0.05, mi, sigma, nazwa)
+{
+  wLewo <- 1 - szerokosc.faktyczne
+  wPrawo <- 1 + szerokosc.faktyczne
+  
+  if(notowanie.faktyczne == 0)
+  {
+    notowanie.faktyczne <- 0.001
+  }
+  
+  wykres <- ggplot(dane, aes(x = payoff)) +
+    xlab("wyplata") +
+    ylab("liczba") +
+    geom_rect(aes_string(xmin = mi - sigma, xmax = mi + sigma, ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .01) +
+    #geom_vline(xintercept = mi, size = 2, colour = kolor.sigma, alpha = .3) +
+    geom_rect(aes_string(xmin = mi*0.98 , xmax = mi*1.02, ymin = 0, ymax = Inf), fill = kolor.sigma) +
+    geom_histogram(binwidth = szerokosc.slupka, aes(fill = ..count..)) +
+    scale_fill_gradient("", low = kolor.niski, high = kolor.wysoki) +
+    geom_rect(aes_string(xmin = notowanie.faktyczne*wLewo , xmax = notowanie.faktyczne*wPrawo, ymin = 0, ymax = Inf), fill = kolor.faktyczny) +
+    theme(legend.position = "none") 
+  #geom_vline(xintercept = notowanie.faktyczne, colour = kolor.faktyczny, size = 2)  
+  
+  
+  return( wykres )
 }
