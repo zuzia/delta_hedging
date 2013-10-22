@@ -7,7 +7,7 @@ fun.policz.zwroty <- function ( dane.ceny , data.poczatkowa , data.koncowa)
     p1 = which( dane.ceny$data == data.poczatkowa)
     p2 = which( dane.ceny$data == data.koncowa)
 
-    zwroty <- data.frame (  (dane.ceny[(p1+1):p2,2:3] - dane.ceny[p1:(p2-1),2:3]) / dane.ceny[p1:(p2-1),2:3] )                                                   
+    zwroty <- data.frame (  (dane.ceny[(p1+1):p2,2:length(dane.ceny)] - dane.ceny[p1:(p2-1),2:length(dane.ceny)]) / dane.ceny[p1:(p2-1),2:length(dane.ceny)] )                                                   
     
     return(zwroty)                                      
 }
@@ -46,4 +46,11 @@ fun.symuluj.1dim <- function (t, S_0, mean, sd, daty, ile) {
   results[1,1:ile+1] <- S_0
   
   return (results)
+}
+
+
+#### zapisuje wykres ####
+zapisz.wykres <- function(x,h=9,w=18,d=100)
+{
+  ggsave(plot=x, file=sprintf("./images/%s/%s.png",param.string,deparse(substitute(x))),height=h,width=w,dpi=d)
 }
