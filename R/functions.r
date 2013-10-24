@@ -35,7 +35,7 @@ fun.symuluj.1dim <- function (t, S_0, mean, sd, daty, ile) {
       unif2 <- runif(1)
       norm  <- as.vector(mapply(function(u1,u2) {sqrt(-2*log(u1)) * c(cos(2*pi*u2), sin(2*pi*u2))}, unif1, unif2))
       
-      temp[j] <- temp[j-1]*exp((mean - 1/2*sd^2)*skok + sd*(norm[2]*sqrt(skok) - norm[2])) ## TODO sprawdzenie tego wzroru
+      temp[j] <- temp[j-1]*exp((mean - 1/2*sd^2)*skok + sd*(norm[2]*sqrt(skok)))
     }
     
     results <- cbind(results, temp)

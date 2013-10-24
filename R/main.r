@@ -27,6 +27,7 @@ require("ggplot2")
 
 set.seed(666)
 param.ile.symulacji <- 1000
+param.ile.symulacji.dla.opcji <- 10000
 param.data.poczatek <- "2010-02-01"
 param.data.koniec <- "2011-02-01"
 param.data.sym.poczatek <- "2011-02-01"
@@ -60,10 +61,10 @@ dane.zwroty.akcji <- fun.policz.zwroty(dane.ceny.akcji,
 #############################################################################################
 
 
-dane.mean.WIG20 <- mean(dane.zwroty.akcji[,2])
-dane.mean.KGHM <- mean(dane.zwroty.akcji[,1])
-dane.sd.WIG20 <- sd(dane.zwroty.akcji[,2])
-dane.sd.KGHM <- sd(dane.zwroty.akcji[,1])
+dane.mean.WIG20 <- mean(dane.zwroty.akcji[,2]) * length(dane.zwroty.akcji[,2])
+dane.mean.KGHM <- mean(dane.zwroty.akcji[,1]) * length(dane.zwroty.akcji[,2])
+dane.sd.WIG20 <- sd(dane.zwroty.akcji[,2]) * sqrt(length(dane.zwroty.akcji[,2]))
+dane.sd.KGHM <- sd(dane.zwroty.akcji[,1])  * sqrt(length(dane.zwroty.akcji[,2]))
 
 dane.korelacja <- cor(dane.zwroty.akcji[,1],
                       dane.zwroty.akcji[,2])
@@ -76,7 +77,7 @@ dane.kowariancja <- cov(dane.zwroty.akcji[,1],
 # symulacja
 #############################################################################################    	
 
-
+dev.off()
 
 dane.symulacja.1dim.WIG20 <- fun.symuluj.1dim(1,
                                          dane.przyszle.WIG20[1,5],
@@ -86,6 +87,13 @@ dane.symulacja.1dim.WIG20 <- fun.symuluj.1dim(1,
                                          param.ile.symulacji)
 
 
+dane.symulacja.1dim.WIG20.dla.opcji <- fun.symuluj.1dim(159/253,
+                                                        dane.przyszle.WIG20[1,5],
+                                                        dane.mean.WIG20,
+                                                        dane.sd.WIG20,
+                                                        c("2011-02-01", "2011-09-16"),
+                                                        param.ile.symulacji.dla.opcji)
+
 #############################################################################################
 # zwroty
 #############################################################################################
@@ -93,7 +101,9 @@ dane.symulacja.1dim.WIG20 <- fun.symuluj.1dim(1,
 dane.zwroty.WIG20.symulacje <- fun.policz.zwroty(dane.symulacja.1dim.WIG20,
                                       param.data.sym.poczatek,
                                       param.data.sym.koniec)
+
 dane.zwroty.WIG20.historyczne <- dane.zwroty.akcji[,"WIG20"]
+
 
 
 #############################################################################################
@@ -101,10 +111,12 @@ dane.zwroty.WIG20.historyczne <- dane.zwroty.akcji[,"WIG20"]
 #############################################################################################
 
 
-dane.opcje.payoff.WIG20.A <- payoff(t(dane.symulacja.1dim.WIG20[159,2:(param.ile.symulacji+1)])[1:param.ile.symulacji], 0, 2400)
-dane.opcje.payoff.WIG20.B <- payoff(t(dane.symulacja.1dim.WIG20[159,2:(param.ile.symulacji+1)])[1:param.ile.symulacji], 0, 2600)
-dane.opcje.payoff.WIG20.C <- payoff(t(dane.symulacja.1dim.WIG20[159,2:(param.ile.symulacji+1)])[1:param.ile.symulacji], 1, 2900)
-dane.opcje.payoff.WIG20.D <- payoff(t(dane.symulacja.1dim.WIG20[159,2:(param.ile.symulacji+1)])[1:param.ile.symulacji], 1, 3100)
+dane.opcje.payoff.WIG20.A <- payoff(t(dane.symulacja.1dim.WIG20.dla.opcji[2,2:(param.ile.symulacji.dla.opcji+1)])[1:param.ile.symulacji.dla.opcji], 0, 2400)
+dane.opcje.payoff.WIG20.B <- payoff(t(dane.symulacja.1dim.WIG20.dla.opcji[2,2:(param.ile.symulacji.dla.opcji+1)])[1:param.ile.symulacji.dla.opcji], 0, 2600)
+dane.opcje.payoff.WIG20.C <- payoff(t(dane.symulacja.1dim.WIG20.dla.opcji[2,2:(param.ile.symulacji.dla.opcji+1)])[1:param.ile.symulacji.dla.opcji], 1, 2900)
+dane.opcje.payoff.WIG20.D <- payoff(t(dane.symulacja.1dim.WIG20.dla.opcji[2,2:(param.ile.symulacji.dla.opcji+1)])[1:param.ile.symulacji.dla.opcji], 1, 3100)
+#dane.opcje.payoff.WIG20.D <- payoff(t(dane.symulacja.1dim.WIG20[159,2:(param.ile.symulacji+1)])[1:param.ile.symulacji], 1, 3100)
+
 
 #############################################################################################
 # prezentacja (wykresy)
@@ -120,7 +132,20 @@ wykres.1dim.WIG20 <- rysuj.symulacje(dane.symulacja.1dim.WIG20,
                                  kolor.linia.WIG20,
                                  "WIG20")
 
-#TODO - histogramy dla opcji i dla zwrotów(porównanie)
+# to poniżej trzeba ręcznie zapisać
+
+par(mfrow = c(2,2))
+wykres.histogram.WIG20.symulacje.1 <- hist(dane.zwroty.WIG20.symulacje[,1], freq = FALSE, nclass = 25, col="#556270", xlab ="", main = "Histogram symulacji 1")
+wykres.histogram.WIG20.symulacje.2 <- hist(dane.zwroty.WIG20.symulacje[,2], freq = FALSE, nclass = 25, col="#4ECDC4", xlab ="", main = "Histogram symulacji 2")
+wykres.histogram.WIG20.symulacje.3 <- hist(dane.zwroty.WIG20.symulacje[,3], freq = FALSE, nclass = 25, col="#C7F464", xlab ="", main = "Histogram symulacji 3")
+wykres.histogram.WIG20.historyczne <- hist(dane.zwroty.WIG20.historyczne , freq = FALSE, nclass = 25, col="#FF6B6B", xlab ="", main = "Histogram zwrotów historycznych")
+
+# to poniżej trzeba ręcznie zapisać
+par(mfrow = c(2,2))
+wykres.histogram.opcja.A <- hist(dane.opcje.payoff.WIG20.A , freq = FALSE, nclass = 25, col="#F56991", xlab ="", main = "Histogram zwrotów z opcji A")
+wykres.histogram.opcja.B <- hist(dane.opcje.payoff.WIG20.B , freq = FALSE, nclass = 25, col="#FF9F80", xlab ="", main = "Histogram zwrotów z opcji B")
+wykres.histogram.opcja.C <- hist(dane.opcje.payoff.WIG20.C , freq = FALSE, nclass = 25, col="#FFC48C", xlab ="", main = "Histogram zwrotów z opcji C")
+wykres.histogram.opcja.D <- hist(dane.opcje.payoff.WIG20.D , freq = FALSE, nclass = 25,col="#EFFAB4", xlab ="", main = "Histogram zwrotów z z opcji D")
 
 
 #############################################################################################
@@ -128,5 +153,21 @@ wykres.1dim.WIG20 <- rysuj.symulacje(dane.symulacja.1dim.WIG20,
 #############################################################################################   
 
 zapisz.wykres(wykres.1dim.WIG20, 9, 18, 90)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

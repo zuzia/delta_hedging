@@ -72,3 +72,5 @@ rysuj.histogram <- function(dane, szerokosc.slupka, kolor.niski, kolor.wysoki, k
   
   return( wykres )
 }
+
+
