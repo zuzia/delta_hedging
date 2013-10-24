@@ -254,6 +254,25 @@ shapiro.test(dane.zwroty.akcji[2]$WIG20)
 #test niezaleznosci chi-kwadrat
 #chisq.test(dane.zwroty.akcji[2]$WIG20)                        
 
+ks.test(dane.zwroty.akcji[1]$KGHM,pnorm,exact=TRUE)
+
+#	One-sample Kolmogorov-Smirnov test
+#
+#data:  dane.zwroty.akcji[1]$KGHM 
+#D = 0.4731, p-value = 2.887e-15
+#alternative hypothesis: two-sided 
+#
+#Komunikat ostrzegawczy:
+#In ks.test(dane.zwroty.akcji[1]$KGHM, pnorm, exact = TRUE) :
+#  wartości powtórzone nie powinny być obecne w teście Kolmogorowa-Smirnowa
+
+ks.test(dane.zwroty.akcji[2]$WIG20,pnorm,exact=TRUE)
+
+#	One-sample Kolmogorov-Smirnov test
+#
+#data:  dane.zwroty.akcji[2]$WIG20 
+#D = 0.4836, p-value = 2.887e-15
+#alternative hypothesis: two-sided 
 
 
 
