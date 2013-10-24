@@ -60,3 +60,19 @@ rysuj_dwa <- function(notowania.zbiorcze, liczba.symulacji, liczba.do_mean){
   
 	return( wykres )
 }
+
+rysuj.mi.tu.korelacje <- function(notowania1, notowania2, nazwa1, nazwa2) {
+  zwroty1 <- (notowania1[2:length(notowania1)] - notowania1[1:length(notowania1)-1]) / notowania1[1:length(notowania1)-1]
+  zwroty2 <- (notowania2[2:length(notowania2)] - notowania2[1:length(notowania2)-1]) / notowania2[1:length(notowania2)-1]
+  
+  l <- min(length(zwroty1), length(zwroty2))
+  zwroty1 <- zwroty1[1:l]
+  zwroty2 <- zwroty2[1:l]
+  df <- data.frame(zwroty1, zwroty2)
+  colnames(df)[1] <- nazwa1
+  colnames(df)[2] <- nazwa2
+  
+  wykres <- ggplot(df, aes_string(x = nazwa1)) + geom_point(aes_string(y = nazwa2), colour="red", size = 5.0)
+  
+  return(wykres)
+}
