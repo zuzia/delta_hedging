@@ -18,7 +18,10 @@ komputer <- Sys.info()["nodename"]
 
 
 source("R\\functions.r")  
-source("R\\charts.r")  
+source("R\\charts.r") 
+source("R\\two_dim_norm.r") 
+source("R\\two_dim_sym.r") 
+source("R\\charts_2.r")  
 require("ggplot2")
 
 #############################################################################################
@@ -74,7 +77,7 @@ dane.kowariancja <- cov(dane.zwroty.akcji[,1],
 
 
 #############################################################################################
-# symulacja
+# symulacja 1 dim
 #############################################################################################    	
 
 dev.off()
@@ -93,7 +96,21 @@ dane.symulacja.1dim.WIG20.dla.opcji <- fun.symuluj.1dim(159/253,
                                                         dane.sd.WIG20,
                                                         c("2011-02-01", "2011-09-16"),
                                                         param.ile.symulacji.dla.opcji)
+#############################################################################################
+# symulacja 2 dim
+#############################################################################################    	
 
+mean_vec <- c(dane.mean.WIG20, dane.mean.KGHM) ## dryf
+sd_vec <- c(dane.sd.WIG20, dane.sd.KGHM) ## zmiennosc
+S_0_vec <- c(dane.przyszle.WIG20[1,5], dane.przyszle.KGHM[1,5])
+
+dane.symulacja.2dim <- fun.symuluj.2dim(1,
+                                         S_0_vec,
+                                         mean_vec,
+                                         sd_vec,
+                                         dane.korelacja,
+                                         dane.przyszle.KGHM[,1],
+                                         param.ile.symulacji)
 #############################################################################################
 # zwroty
 #############################################################################################
@@ -103,7 +120,6 @@ dane.zwroty.WIG20.symulacje <- fun.policz.zwroty(dane.symulacja.1dim.WIG20,
                                       param.data.sym.koniec)
 
 dane.zwroty.WIG20.historyczne <- dane.zwroty.akcji[,"WIG20"]
-
 
 
 #############################################################################################
@@ -119,7 +135,7 @@ dane.opcje.payoff.WIG20.D <- payoff(t(dane.symulacja.1dim.WIG20.dla.opcji[2,2:(p
 
 
 #############################################################################################
-# prezentacja (wykresy)
+# prezentacja (wykresy) 1 dim
 #############################################################################################   
 
 kolor.kwantyle.WIG20 <- "#E1017B"
@@ -154,9 +170,89 @@ wykres.histogram.opcja.D <- hist(dane.opcje.payoff.WIG20.D , freq = FALSE, nclas
 
 zapisz.wykres(wykres.1dim.WIG20, 9, 18, 90)
 
+#############################################################################################
+# prezentacja (wykresy) 2 dim WIG20 i KGHM
+############################################################################################# 
+  
+##najpierw z kwantylami wykresy, osobno, będą prezentowane koło siebie
+kolor.kwantyle.WIG20 <- "#E1017B"
+kolor.linia.WIG20 <- "#720FCC"
+
+dane.symulacja.2dim.WIG20 <- dane.symulacja.2dim[[1]]
+dane.symulacja.2dim.KGHM <- dane.symulacja.2dim[[2]]
+
+wykres.2dim.WIG20 <- rysuj.symulacje(dane.symulacja.2dim.WIG20,
+                                 dane.przyszle.WIG20[,5],
+                                 param.ile.symulacji,
+                                 kolor.kwantyle.WIG20,
+                                 kolor.linia.WIG20,
+                                 "WIG20")
+ggsave(plot=wykres.2dim.WIG20, file=sprintf("./images/part_zero/wykres.2dim.WIG20.png"),height=9,width=18,dpi=100)
+
+wykres.2dim.KGHM <- rysuj.symulacje(dane.symulacja.2dim.KGHM,
+                                 dane.przyszle.KGHM[,5],
+                                 param.ile.symulacji,
+                                 kolor.kwantyle.WIG20,
+                                 kolor.linia.WIG20,
+                                 "KGHM")
+ggsave(plot=wykres.2dim.KGHM, file=sprintf("./images/part_zero/wykres.2dim.KGHM.png"),height=9,width=18,dpi=100)
 
 
 
+##dwa jednocześnie, kawal porzadnego kreatywnego programowania ;)
+rys_dwa <- rysuj_dwa(dane.symulacja.2dim, 4, 4) #na koncu powinno byc ile faktycznie mamy symulacji
+ggsave(plot=rys_dwa, file=sprintf("./images/part_zero/rys_dwa.png"),height=9,width=18,dpi=100)
+#############################################################################################
+# zwroty 2 dim i policzone korealcje
+#############################################################################################
+dane.zwroty.WIG20.2dim.symulacje <- fun.policz.zwroty(dane.symulacja.2dim.WIG20,
+                                      param.data.sym.poczatek,
+                                      param.data.sym.koniec)
+                                      
+dane.zwroty.KGHM.2dim.symulacje <- fun.policz.zwroty(dane.symulacja.2dim.KGHM,
+                                      param.data.sym.poczatek,
+                                      param.data.sym.koniec)
+                                      
+dane.korelacja.symulacje <- cor(dane.zwroty.WIG20.2dim.symulacje[2],
+                      dane.zwroty.KGHM.2dim.symulacje[2])
+                                      
+#dane.korelacja.symulacje
+#          sym
+#sym 0.7403541
+
+# dane.korelacja.symulacje
+#          sym.1
+#sym.1 0.7814661
+
+#dane.korelacja
+#[1] 0.7865623
+
+#############################################################################################
+# testy normalnosci i niezaleznosci zwrotow
+#############################################################################################
+## qq-ploty
+qq_wig20 <- qqnorm(dane.zwroty.akcji[2]$WIG20)
+qq_kghm <- qqnorm(dane.zwroty.akcji[1]$KGHM)
+
+#test Shapiro-Wilka
+shapiro.test(dane.zwroty.akcji[1]$KGHM)
+#> shapiro.test(dane.zwroty.akcji[1]$KGHM)
+#
+#	Shapiro-Wilk normality test
+#
+#data:  dane.zwroty.akcji[1]$KGHM 
+#W = 0.9913, p-value = 0.1395
+
+shapiro.test(dane.zwroty.akcji[2]$WIG20)
+#> shapiro.test(dane.zwroty.akcji[2]$WIG20)
+#
+#	Shapiro-Wilk normality test
+#
+#data:  dane.zwroty.akcji[2]$WIG20 
+#W = 0.979, p-value = 0.0008596
+
+#test niezaleznosci chi-kwadrat
+#chisq.test(dane.zwroty.akcji[2]$WIG20)                        
 
 
 
