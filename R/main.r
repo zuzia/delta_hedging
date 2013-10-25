@@ -80,7 +80,6 @@ dane.kowariancja <- cov(dane.zwroty.akcji[,1],
 # symulacja 1 dim
 #############################################################################################    	
 
-dev.off()
 
 dane.symulacja.1dim.WIG20 <- fun.symuluj.1dim(1,
                                          dane.przyszle.WIG20[1,5],
@@ -162,6 +161,13 @@ wykres.histogram.opcja.A <- hist(dane.opcje.payoff.WIG20.A , freq = FALSE, nclas
 wykres.histogram.opcja.B <- hist(dane.opcje.payoff.WIG20.B , freq = FALSE, nclass = 25, col="#FF9F80", xlab ="", main = "Histogram zwrotów z opcji B")
 wykres.histogram.opcja.C <- hist(dane.opcje.payoff.WIG20.C , freq = FALSE, nclass = 25, col="#FFC48C", xlab ="", main = "Histogram zwrotów z opcji C")
 wykres.histogram.opcja.D <- hist(dane.opcje.payoff.WIG20.D , freq = FALSE, nclass = 25,col="#EFFAB4", xlab ="", main = "Histogram zwrotów z z opcji D")
+
+# to poniżej trzeba ręcznie zapisać
+par(mfrow = c(2,2))
+wykres.histogram.opcja.A <- hist(dane.opcje.payoff.WIG20.A[! dane.opcje.payoff.WIG20.A %in% 0], freq = FALSE, nclass = 25, col="#F56991", xlab ="", main = "Histogram zwrotów z opcji A")
+wykres.histogram.opcja.B <- hist(dane.opcje.payoff.WIG20.B[! dane.opcje.payoff.WIG20.B %in% 0] , freq = FALSE, nclass = 25, col="#FF9F80", xlab ="", main = "Histogram zwrotów z opcji B")
+wykres.histogram.opcja.C <- hist(dane.opcje.payoff.WIG20.C[! dane.opcje.payoff.WIG20.C %in% 0] , freq = FALSE, nclass = 25, col="#FFC48C", xlab ="", main = "Histogram zwrotów z opcji C")
+wykres.histogram.opcja.D <- hist(dane.opcje.payoff.WIG20.D[! dane.opcje.payoff.WIG20.D %in% 0] , freq = FALSE, nclass = 25,col="#EFFAB4", xlab ="", main = "Histogram zwrotów z z opcji D")
 
 
 #############################################################################################
