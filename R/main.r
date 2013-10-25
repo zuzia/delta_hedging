@@ -149,20 +149,29 @@ wykres.1dim.WIG20 <- rysuj.symulacje(dane.symulacja.1dim.WIG20,
 
 # to poniżej trzeba ręcznie zapisać
 
+# zwroty
 par(mfrow = c(2,2))
 wykres.histogram.WIG20.symulacje.1 <- hist(dane.zwroty.WIG20.symulacje[,1], freq = FALSE, nclass = 25, col="#556270", xlab ="", main = "Histogram symulacji 1")
 wykres.histogram.WIG20.symulacje.2 <- hist(dane.zwroty.WIG20.symulacje[,2], freq = FALSE, nclass = 25, col="#4ECDC4", xlab ="", main = "Histogram symulacji 2")
 wykres.histogram.WIG20.symulacje.3 <- hist(dane.zwroty.WIG20.symulacje[,3], freq = FALSE, nclass = 25, col="#C7F464", xlab ="", main = "Histogram symulacji 3")
 wykres.histogram.WIG20.historyczne <- hist(dane.zwroty.WIG20.historyczne , freq = FALSE, nclass = 25, col="#FF6B6B", xlab ="", main = "Histogram zwrotów historycznych")
 
-# to poniżej trzeba ręcznie zapisać
+# zwroty (więcej danych)
+par(mfrow = c(1,2))
+wykres.histogram.WIG20.symulacje.1 <- hist(c(t(dane.zwroty.WIG20.symulacje)), freq = FALSE, nclass = 50, col="#556270", xlab ="", main = "Histogram zwrotów z wszystkich symulacji")
+lines(x, dnorm(x, mean=mean(c(t(dane.zwroty.WIG20.symulacje))), sd=sd(c(t(dane.zwroty.WIG20.symulacje)))), col="#FF6B6B", lwd = 3)
+
+x <- seq(min(dane.zwroty.WIG20.historyczne), max(dane.zwroty.WIG20.historyczne), len=200)
+wykres.histogram.WIG20.historyczne <- hist(dane.zwroty.WIG20.historyczne , freq = FALSE, nclass = 25, col="#FF6B6B", xlab ="", main = "Histogram zwrotów historycznych")
+lines(x, dnorm(x, mean=mean(dane.zwroty.WIG20.historyczne), sd=sd(dane.zwroty.WIG20.historyczne)), col="#556270", lwd = 4)
+# opcje z zerem
 par(mfrow = c(2,2))
 wykres.histogram.opcja.A <- hist(dane.opcje.payoff.WIG20.A , freq = FALSE, nclass = 25, col="#F56991", xlab ="", main = "Histogram zwrotów z opcji A")
 wykres.histogram.opcja.B <- hist(dane.opcje.payoff.WIG20.B , freq = FALSE, nclass = 25, col="#FF9F80", xlab ="", main = "Histogram zwrotów z opcji B")
 wykres.histogram.opcja.C <- hist(dane.opcje.payoff.WIG20.C , freq = FALSE, nclass = 25, col="#FFC48C", xlab ="", main = "Histogram zwrotów z opcji C")
 wykres.histogram.opcja.D <- hist(dane.opcje.payoff.WIG20.D , freq = FALSE, nclass = 25,col="#EFFAB4", xlab ="", main = "Histogram zwrotów z z opcji D")
 
-# to poniżej trzeba ręcznie zapisać
+# opcje bez zera
 par(mfrow = c(2,2))
 wykres.histogram.opcja.A <- hist(dane.opcje.payoff.WIG20.A[! dane.opcje.payoff.WIG20.A %in% 0], freq = FALSE, nclass = 25, col="#F56991", xlab ="", main = "Histogram zwrotów z opcji A")
 wykres.histogram.opcja.B <- hist(dane.opcje.payoff.WIG20.B[! dane.opcje.payoff.WIG20.B %in% 0] , freq = FALSE, nclass = 25, col="#FF9F80", xlab ="", main = "Histogram zwrotów z opcji B")
