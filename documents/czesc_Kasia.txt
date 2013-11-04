@@ -1,0 +1,14 @@
+1. Jak ma wygladac rehedging?
+Tutaj mam mieszane uczucia, jak ma wygladac wiemy, bedziemy dostosowywac delte wedlug wzoru. Pytanie tylko jak czesto, wydaje mi sie ze po kazdym kroku algorytmu, czyli codziennie.
+
+2. Wybor obligacji do stopy wolnej od ryzyka.
+Sa 2 obligacje, ktore moga nam odpowiadac (dwuletnie): OK0712 oraz OK0112. Pytanie, ktora wybieramy, czy tez moze jakos te stope przyblizymy za pomoca tych dwoch?
+
+3. Rozbieznosci miedzy modelem a rzeczywistoscia, z czego wynikaja.
+- na pewno nie bierzemy pod uwage kosztow hedgingu i rehedgingu
+- wyznaczenie stopy - zmienia sie
+- wyznaczenie zmiennosci (sigma) - my robimy estymator nww wariancji, tak naprawde sa inne metody na przyblizanie tej wielkosci, trzeba wziac pod uwage, ze ona tez zmienia sie w czasie, a my bazujemy na danych historycznych
+- jeszcze nad tym punktem pomysle
+
+4. Czesc C, znam jeden trywialny test. Tutaj znalazlam cos jeszcze, ale musze to doczytac:
+http://www.google.pl/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0CCoQFjAA&url=http%3A%2F%2Fpeople.maths.ox.ac.uk%2Frichardsonm%2FSDEs.pdf&ei=ybZ3UtKKDMeX1AXPmIGIAQ&usg=AFQjCNHzt94gANrv9_IFapy120X4yH-paw
