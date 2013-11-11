@@ -1,5 +1,12 @@
+#############################################################################################
+# ustawienia
+#############################################################################################
 source("R\\main.r")  
 
+
+#############################################################################################
+# funkcje
+#############################################################################################
 fun.eval.d1 <- function(s0, strike, r, sd, T, t) {
   
   return ((log(s0/strike) + (r+sd/2)*(T-t))/(sqrt(sd*(T-t))))
@@ -62,64 +69,62 @@ fun.eval.loss.reality <- function(s, strike, r, sd, T, liczba.rehedg, przyszle.d
   strata <- strata + (1-delta)*(s-strike)
   
   result <- rbind(result, c(0, strata, s))
+  colnames(result)[1] <- ("delta","strata","s")
   
   return(result)
 }
 
 
+#############################################################################################
+# czesc abstrakcyjna
+#############################################################################################
+
+fun.apply.for.loss <- function(liczba.iteracji, liczba.rehedg) {
+  re <- sapply(rep(1,liczba.iteracji),
+               fun.eval.loss.abstract,
+               s = dane.s0.WIG20,
+               strike = 3000,
+               r = param.r,
+               mean = dane.mean.WIG20,
+               sd = dane.sd.WIG20,
+               T = param.T,
+               liczba.rehedg = liczba.rehedg)
+  
+  #colnames(re) <- as.strings(liczba.rehedg)
+  
+}
+dane.liczba.rehedg <- c(4,8)
+dane.liczba.iteracji <- 1000
+
+dane.part.A.abstract <- sapply(dane.liczba.rehedg,
+                               fun.apply.for.loss,
+                               liczba.iteracji = dane.liczba.iteracji)
+
+#############################################################################################
+# czesc rzeczywista
+#############################################################################################
+dane.part.A.reality <- sapply(c(4,10),
+                              fun.eval.loss.reality,
+                              s = dane.s0.WIG20,
+                              strike = 3000,
+                              r = param.r,
+                              sd = dane.sd.WIG20,
+                              T = param.T,
+                              przyszle.dane = dane.przyszle.WIG20[,5],
+                              numer.wiersza = 153)
+
+dane.part.A.reality[,1]
 
 
-sapply(1:1000,
-       fun.eval.loss.abstract,
-       s = dane.s0.WIG20,
-       strike = 3000,
-       r = param.r,
-       mean = dane.mean.WIG20,
-       sd = dane.sd.WIG20,
-       T = param.T,
-       liczba.rehedg = 10)
 
-
-fun.eval.loss.reality(s = dane.s0.WIG20,
-                      strike = 3000,
-                      r = param.r,
-                      sd = dane.sd.WIG20,
-                      T = param.T,
-                      liczba.rehedg = 151,
-                      przyszle.dane = dane.przyszle.WIG20[,5],
-                      numer.wiersza = 153)
+#############################################################################################
+# wykresy
+#############################################################################################
 
 
 
-# rysuj.histogram <- function(dane, szerokosc.slupka, kolor.niski, kolor.wysoki, kolor.faktyczny, kolor.sigma, notowanie.faktyczne, szerokosc.faktyczne = 0.05, nazwa)
-# {
-#   wLewo <- 1 - szerokosc.faktyczne
-#   wPrawo <- 1 + szerokosc.faktyczne
-#   
-#   if(notowanie.faktyczne == 0)
-#   {
-#     notowanie.faktyczne <- 0.001
-#   }
-#   
-#   wykres <- ggplot(dane, aes(x = payoff)) +
-#     xlab("wyplata") +
-#     ylab("liczba") +
-#     geom_rect(aes_string(xmin = mi - sigma, xmax = mi + sigma, ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .01) +
-#     #geom_vline(xintercept = mi, size = 2, colour = kolor.sigma, alpha = .3) +
-#     geom_rect(aes_string(xmin = mi*0.98 , xmax = mi*1.02, ymin = 0, ymax = Inf), fill = kolor.sigma) +
-#     geom_histogram(binwidth = szerokosc.slupka, aes(fill = ..count..)) +
-#     scale_fill_gradient("", low = kolor.niski, high = kolor.wysoki) +
-#     geom_rect(aes_string(xmin = notowanie.faktyczne*wLewo , xmax = notowanie.faktyczne*wPrawo, ymin = 0, ymax = Inf), fill = kolor.faktyczny) +
-#     theme(legend.position = "none") 
-#   #geom_vline(xintercept = notowanie.faktyczne, colour = kolor.faktyczny, size = 2)  
-#   
-#   
-#   return( wykres )
-# }
-# 
-# 
-# histogram<- rysuj.histogram(dane 0.1, "#FFBAFF", "#E1017B", "#A0F401", "#4C78E5", zysk.faktyczny, 0.01, "wykres")
-# 
+rysuj.histogram(dane = dane.part.A.abstract[,1])
 
 
+dane.part.A.abstract[1:10,]
 
