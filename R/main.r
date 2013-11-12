@@ -19,7 +19,6 @@ komputer <- Sys.info()["nodename"]
 
 source("R\\functions.r")  
 source("R\\charts.r") 
-source("R\\charts_2.r")  
 require("ggplot2")
 
 #############################################################################################

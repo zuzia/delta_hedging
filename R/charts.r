@@ -58,11 +58,34 @@ rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88AB
     ggtitle(nazwa) +
     geom_rect(aes_string(xmin = mi - sigma, xmax = mi + sigma, ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .005) + #odchylenie
     geom_rect(aes_string(xmin = mi-(sigma/30) , xmax = mi+(sigma/30), ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .05) + #srednia
-    geom_histogram(binwidth = 50, aes(fill = ..count..)) + #histogram
+    geom_histogram(binwidth = 5, aes(fill = ..count..)) + #histogram
     scale_fill_gradient("", low = kolor.niski, high = kolor.wysoki) +
     theme(legend.position = "none") 
   
   return( wykres )
+}
+
+rysuj.kwantyle.straty <- function(dane, circle.kolor = "#E038AD", kolor.kwantyle = "#640CAB", circle.size = 8, circle.alpha = .02, nazwa = "wykres") {
+  
+  pre.kwantyle <- data.frame(t(apply(t(dane), 1, quantile, probs = c(0.05, 0.3, 0.7, 0.95))))
+  minima <- data.frame((apply(t(dane), 1, min)))
+  maksima <- data.frame((apply(t(dane), 1, max)))
+  
+  kwantyle <- cbind(1:(ncol(dane)), pre.kwantyle, minima, maksima)
+  
+  colnames(kwantyle) <- c("ax", "kwantyl.5", "kwantyl.30", "kwantyl.70", "kwantyl.95", "min", "max")
+  
+  dane.do.wykresu <- data.frame(ax = sort(rep(1 : ncol(dane), times = nrow(dane))), value = stack(data.frame(dane))["values"])
+  
+  wykres <- ggplot(dane.do.wykresu, aes(x = ax)) +
+    geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.5, ymax = min), fill = kolor.kwantyle, alpha = .30) +
+    geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.5, ymax = kwantyl.30), fill = kolor.kwantyle, alpha = .50) +
+    geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.30, ymax = kwantyl.70), fill = kolor.kwantyle, alpha = .70) +
+    geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.70, ymax = kwantyl.95), fill = kolor.kwantyle, alpha = .50) +
+    geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.95, ymax = max), fill = kolor.kwantyle, alpha = .30) +
+    geom_point(aes(y = values), size = circle.size, alpha = circle.alpha, colour = circle.kolor)
+  
+  return ( wykres )
 }
 
 

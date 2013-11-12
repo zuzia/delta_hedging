@@ -48,9 +48,6 @@ fun.symuluj.1dim <- function (t, S_0, mean, sd, daty, ile) {
 
 
 
-
-
-
 # zwraca trajektorie symulacji wig20 i kghm jednoczesnie
 # t - długość symulacji (1 to jeden rok) [u nas w zadaniu 1]
 # S_0 - wektor wartosci w chwili zero (pierwsze dla wig20, drugie dla kghm)
