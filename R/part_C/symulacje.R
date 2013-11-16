@@ -1,3 +1,5 @@
+require("vrtest")
+require("tseries")
 ## taki tam funkcyjny smaczek, funkcja sluzaca do skladania funkcji
 ##przyklad:
 #f <- function(x) 2*x
@@ -45,6 +47,16 @@ Euler_Maruyama <- function(T, n, f, g, X_0, brown_motion, s_vec){
   return(c(X_0, Xs))
 }
 
+Euler_M_OK<- function(T, n, f, g, X_0, brown_motion){
+  step <- T/n
+  X_old <- X_0
+  Xs <- rep(0,n)
+  for(i in 1:n){
+    Xs[i] <- X_old + step*f(X_old) + g(X_old)*(brown_motion[i+1] - brown_motion[i])
+    X_old <- Xs[i]
+  }
+  return(c(X_0, Xs))
+}
 ## funkcja pomocnicza, bierze 4 funkcje, zwraca 2 ;)
 ## f i g sa funkcjami z rownania na S
 ## dv i d2v sa odpowiednio piewsza(dV/dS) i druga (d^2V/dS^2) pochodna ze wzoru Ito
@@ -232,4 +244,62 @@ f_dt10 <- fun_list10[[1]]
 f_dw10 <- fun_list10[[2]]
 hermit10 <- Euler_Maruyama(1, 1000, f_dt10, f_dw10, 1, b_m, sol)
 plot(hermit10, type="l")
-lines(1024*sol^10-23040*sol^8+161280*sol^6-403200*sol^4+302400*sol^2-30240, type = "l", col = "red")##TODO
+lines(1024*sol^10-23040*sol^8+161280*sol^6-403200*sol^4+302400*sol^2-30240, type = "l", col = "red")
+
+####################################################################
+## TESTY
+####################################################################
+
+## Testowanie martyngalu
+fun_diff <- function(vector){
+  result <- vector[2:length(vector)] - vector[1:(length(vector)-1)]
+  return(result)
+}
+b_m <- generate_Wiener(1, 100)
+ito_check <- fun_diff(expl_solution(1,2,1,b_m, 1, 100)) ## te hipoteze sie testuje na zwrotach
+DL.test(ito_check) ## testowanie roznicy martyngalowej? (martingale difference), UWAGA dlugo sie liczy ;)
+## sa to 2 testy
+#$Cp
+#[1] 0.0672336
+#
+#$Kp
+#[1] 0.7225641
+#
+#$Cp_pval
+#[1] 0.8566667
+#
+#$Kp_pval
+#[1] 0.6433333
+
+
+##Testowanie normalnosci zwrotow
+## Testy Shapiro-Wilka i Jarque-Bera
+lambda_n <- 8
+mi_n <- 2
+S_fn <- function(s) lambda_n*s;
+S_gn <- function(s) mi_n*s;
+S_0n <- 1
+test_norm <- function(){
+  res1 <- c()
+  res2 <- c()
+  for(i in 1:1000){
+    b_mn <- generate_Wiener(1,1000)
+    test_norm <- Euler_M_OK(1, 1000, S_fn, S_gn, S_0n, b_mn)
+#    print(length(fun_diff(test_norm)))
+#    print(length(test_norm))
+    returns_norm <- fun_diff(test_norm)/test_norm[1:(length(test_norm)-1)]
+    sht <- shapiro.test(returns_norm)
+    jbt <- jarque.bera.test(returns_norm)
+    res1 <- c(res1, sht$p)
+    res2 <- c(res2, jbt$p.value)
+  }
+  return(list(res1, res2))
+}
+
+p_values <- test_norm()
+sh_p <- p_values[[1]]
+jb_p <- p_values[[2]]
+notvalid_sh = which(sh_p<=0.05)
+length(notvalid_sh) ## wyszlo mi 41, wiec ok 96% jest dobrze
+notvalid_jb = which(jb_p<=0.05)
+length(notvalid_jb) ## wyszlo 48, ok 95%
