@@ -2,21 +2,21 @@
 #####################################
 fun.eval.d1 <- function(s0, strike, r, sd, T, t) {
   
-  return ((log(s0/strike) + (r+sd/2)*(T-t))/(sqrt(sd*(T-t))))
+  return ((log(s0/strike) + (r+sd^2/2)*(T-t))/(sd*sqrt(T-t)))
 }
 
 ############ obliczenie d2 ###########
 #####################################
 fun.eval.d2 <- function(s0, strike, r, sd, T, t) {
   
-  return ((log(s0/strike) + (r-sd/2)*(T-t))/(sqrt(sd*(T-t))))
+  return ((log(s0/strike) + (r-sd^2/2)*(T-t))/(sd*sqrt(T-t)))
 }
 
 ############ symulacja jednego skoku ###########
 ###############################################
 # np. jezeli t = 0.5 to symuluje pol roku do przodu
 fun.symuluj.1dim.1skok <- function(t, S_0, mean, sd, rnorm) {
-  return (S_0*exp((mean -1/2*sd^2)*t + sd*rnorm*t))
+  return (S_0*exp((mean -1/2*sd^2)*t + sd*rnorm*sqrt(t)))
 }
 
 ############ wycena opcji ###########
@@ -83,9 +83,12 @@ fun.eval.loss <- function(typ1, typ2, s, strike, r, sd, T, liczba.rehedg, typ2.p
     s <- fun.symuluj.1dim.1skok(skok, s, mean, sd, rnorm(1))
   else if(typ2 == 1)
     s <- przyszle.dane[param.numer.wiersza]
+  norisk <- norisk*exp(r*skok)
+  option <- payoff(s, typ1, strike)
   
-  strata <- delta*s + norisk*exp(r*skok) - payoff(s, typ1, strike)
-  data <- rbind(data, c(s, 0, 0, 0, strata))
+  strata <- delta*s + norisk - option
+  
+  data <- rbind(data, c(s, delta, norisk, option, strata))
   colnames(data) <- c("s", "delta", "norisk", "option", "portfel")
   
   return (data)

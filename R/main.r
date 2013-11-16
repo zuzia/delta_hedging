@@ -91,28 +91,24 @@ dane.kowariancja <- cov(dane.zwroty.akcji[,1],
 #############################################################################################
 
 
-dane.part.A.abstract <- fun.eval.loss.abstract(6, c(2,4), 0, 2300)
+dane.part.A.abstract <- fun.eval.loss.abstract(1000, 5, 0, 2900)
+rysuj.histogram(dane = dane.part.A.abstract, szerokosc.faktyczna = 5)
+
+dane.part.A.abstract <- fun.eval.loss.abstract(1000, 1:20, 0, 2600)
+rysuj.kwantyle.straty(dane.part.A.abstract, circle.alpha = .01, circle.size = 7)
+
+
 fun.eval.loss.reality(c(3,6), 0, 2300)
 
 
 
-rysuj.histogram(dane = dane.part.A.abstract[,2])
-
-rysuj.kwantyle.straty(dane.part.A.abstract, circle.alpha = .01, circle.size = 7)
 
 
 
 
 
-y <- fun.eval.loss.simple(typ1 = 0,
-                          typ2 = 0,
-                          s = dane.s0.WIG20,
-                          strike = 2300,
-                          r = param.r,
-                          sd = dane.sd.WIG20,
-                          T = 1,
-                          liczba.rehedg = t1$lh,
-                          typ2.param = dane.mean.WIG20)
+
+
 
 
 

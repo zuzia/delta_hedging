@@ -47,7 +47,7 @@ rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.sym
   
 }
 
-rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88ABC2", kolor.sigma = "red", szerokosc.faktyczne = 0.01, nazwa = "wykres")
+rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88ABC2", kolor.sigma = "red", szerokosc.faktyczna = 5, nazwa = "wykres")
 {
   mi <- mean(dane)
   sigma <- sd(dane)
@@ -58,7 +58,7 @@ rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88AB
     ggtitle(nazwa) +
     geom_rect(aes_string(xmin = mi - sigma, xmax = mi + sigma, ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .005) + #odchylenie
     geom_rect(aes_string(xmin = mi-(sigma/30) , xmax = mi+(sigma/30), ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .05) + #srednia
-    geom_histogram(binwidth = 5, aes(fill = ..count..)) + #histogram
+    geom_histogram(binwidth = szerokosc.faktyczna, aes(fill = ..count..)) + #histogram
     scale_fill_gradient("", low = kolor.niski, high = kolor.wysoki) +
     theme(legend.position = "none") 
   
