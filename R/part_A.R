@@ -1,142 +1,146 @@
-#############################################################################################
-# ustawienia
-#############################################################################################
-source("R\\main.r")  
-
-
-#############################################################################################
-# funkcje
-#############################################################################################
+############ obliczenie d1 ###########
+#####################################
 fun.eval.d1 <- function(s0, strike, r, sd, T, t) {
   
   return ((log(s0/strike) + (r+sd/2)*(T-t))/(sqrt(sd*(T-t))))
 }
 
+############ obliczenie d2 ###########
+#####################################
 fun.eval.d2 <- function(s0, strike, r, sd, T, t) {
   
   return ((log(s0/strike) + (r-sd/2)*(T-t))/(sqrt(sd*(T-t))))
 }
 
+############ symulacja jednego skoku ###########
+###############################################
+# np. jezeli t = 0.5 to symuluje pol roku do przodu
 fun.symuluj.1dim.1skok <- function(t, S_0, mean, sd, rnorm) {
   return (S_0*exp((mean -1/2*sd^2)*t + sd*rnorm*t))
 }
 
-fun.eval.option <- function(s, r, T, t, sd, strike) {
+############ wycena opcji ###########
+####################################
+# typ: 0 - call, 1 - put
+fun.eval.option <- function(typ, s, r, T, t, sd, strike) {
   
   d1 <- fun.eval.d1(s, strike, r, sd, T, t)
   d2 <- fun.eval.d2(s, strike, r, sd, T, t)
   
-  return (s*pnorm(d1) - strike*exp(-r*(T-t))*pnorm(d2))
+  if(typ == 0) 
+    return( s*pnorm(d1) - strike*exp(-r*(T-t))*pnorm(d2) )
+  else if(typ == 1) 
+    return( -s*pnorm(-d1) + strike*exp(-r*(T-t))*pnorm(-d2) ) 
+
 }
 
-fun.eval.loss.abstract <- function(s, strike, r, mean, sd, T, liczba.rehedg, pusta.zmienna) {
+############ obliczenie delty ###########
+########################################
+# typ: 0 - call, 1 - put
+fun.eval.delta <- function(typ, s, r, T, t, sd, strike) {
+  if(typ == 0)
+    return( pnorm(fun.eval.d1(s, strike, r, sd, T, t)))
+  else if(typ == 1)
+    return( pnorm(fun.eval.d1(s, strike, r, sd, T, t)) - 1 )
+}
+
+############ policzenie loss/profit ###########
+##############################################
+# typ1: 0 - call, 1 - put
+# typ2: 0 - abstract, 1 - reality
+# jezeli typ2 = 0 to wtedy w zmiennej 'typ2.param' przekazujemy 'mean'
+# jezeli typ2 = 1 to wtedy w zmiennej 'typ2.param' przekazujemy 'przyszle.dane'
+fun.eval.loss <- function(typ1, typ2, s, strike, r, sd, T, liczba.rehedg, typ2.param) {
   
-  option <- fun.eval.option(s, r, T, 0, sd, strike)
-  delta <- pnorm(fun.eval.d1(s, strike, r, sd, T, 0))
+  if(typ2 == 0) 
+    mean <- typ2.param
+  else if(typ2 == 1)
+    przyszle.dane <- typ2.param
+    
+  option <- fun.eval.option(typ1, s, r, T, 0, sd, strike)
+  delta <- fun.eval.delta(typ1, s, r, T, 0, sd, strike)
   norisk <- option-s*delta
-  portfel <- data.frame(s = s,delta = delta0, norisk = norisk)
+  data <- data.frame(s = s, delta = delta, norisk = norisk, option = option, portfel = delta*s + norisk - option)
   
   skok <- T/(liczba.rehedg+1)
   
   for(i in 1:(liczba.rehedg)){
     
+    if(typ2 == 0)
+      s <- fun.symuluj.1dim.1skok(skok, s, mean, sd, rnorm(1))
+    else if(typ2 == 1)
+      s <- przyszle.dane[floor((param.numer.wiersza-1)/(liczba.rehedg+1)*(i+2))]
+    
+    option <- fun.eval.option(typ1, s, r, T, i*skok, sd, strike)
+    new.delta <- fun.eval.delta(typ1, s, r, T, i*skok, sd, strike)
+    norisk <- norisk*exp(r*skok) - (new.delta-delta)*s
+    delta <- new.delta
+    data <- rbind(data, c(s, delta, norisk, option, portfel = delta*s + norisk - option))
+    
+  }
+  
+  if(typ2 == 0)
     s <- fun.symuluj.1dim.1skok(skok, s, mean, sd, rnorm(1))
-    new.delta <- pnorm(fun.eval.d1(s, strike, r, sd, T, i*skok))
-    norisk <- norisk*exp(r*skok) - (new.delta-delta)*s
-    delta <- new.delta
-    portfel <- rbind(portfel, c(s, delta, norisk))
-    
-  }
+  else if(typ2 == 1)
+    s <- przyszle.dane[param.numer.wiersza]
   
-  s <- fun.symuluj.1dim.1skok(skok, s, mean, sd, rnorm(1))
-  strata <- (delta*s + norisk*exp(r*skok) - max((s-strike),0))/option
+  strata <- delta*s + norisk*exp(r*skok) - payoff(s, typ1, strike)
+  data <- rbind(data, c(s, 0, 0, 0, strata))
+  colnames(data) <- c("s", "delta", "norisk", "option", "portfel")
   
-  return (strata)
+  return (data)
   
 }
 
-fun.eval.loss.reality <- function(s, strike, r, sd, T, liczba.rehedg, przyszle.dane, numer.wiersza) {
-
-  option <- fun.eval.option(s, r, T, 0, sd, strike)
-  delta <- pnorm(fun.eval.d1(s, strike, r, sd, T, 0))
-  norisk <- option-s*delta
-  portfel <- data.frame(s = s,delta = delta0, norisk = norisk, value = option)
-
-  skok <- T/(liczba.rehedg+1)
-  
-  for(i in 1:(liczba.rehedg)){
-    
-    s <- przyszle.dane[floor((numer.wiersza-1)/(liczba.rehedg+1)*(i+2))]
-    value <- delta*s + norisk*exp(r*skok)
-    new.delta <- pnorm(fun.eval.d1(s, strike, r, sd, T, i*skok))
-    norisk <- norisk*exp(r*skok) - (new.delta-delta)*s
-    delta <- new.delta
-    portfel <- rbind(portfel, c(s, delta, norisk, value))
-    
-  }
-  
-  s <- przyszle.dane[numer.wiersza]
-  
-  value <- delta*s + norisk*exp(r*skok) - max((s-strike),0)
-  portfel <- rbind(portfel, c(s, 0, 0, value))
-
-  return(portfel)
+############ wyciagniecie koncowej straty z 'fun.eval.loss' iles razy ###########
+################################################################################
+# pusta.zmienna: wywołanie 'fun.eval.loss tyle razy ile wynosi dlugosc 'pusta.zmienna'
+fun.eval.loss.simple <- function(typ1, typ2, s, strike, r, sd, T, liczba.rehedg, typ2.param, pusta.zmienna) {
+  return(fun.eval.loss(typ1, typ2, s, strike, r, sd, T, liczba.rehedg, typ2.param)[(liczba.rehedg+2),5])
 }
 
-
-#############################################################################################
-# czesc abstrakcyjna
-#############################################################################################
-
-fun.apply.for.loss <- function(liczba.iteracji, liczba.rehedg) {
-  re <- sapply(rep(1,liczba.iteracji),
-               fun.eval.loss.abstract,
-               s = dane.s0.WIG20,
-               strike = 2300,
-               r = param.r,
-               mean = dane.mean.WIG20,
-               sd = dane.sd.WIG20,
-               T = param.T,
-               liczba.rehedg = liczba.rehedg)
-  
-  #colnames(re) <- as.strings(liczba.rehedg)
-  
+############ zastosowanie 'sapply' na 'fun.eval.loss.simple' dla liczby iteracji ###########
+###########################################################################################
+fun.eval.loss.preprocess1 <- function(liczba.iteracji, liczba.rehedg, typ1, s, strike, r, sd, T, mean) {
+  return ( sapply(rep(1,liczba.iteracji),
+                  fun.eval.loss.simple,
+                  typ1 = typ1,
+                  typ2 = 0,
+                  s = s,
+                  strike = strike,
+                  r = r,
+                  sd = sd,
+                  T = T,
+                  liczba.rehedg = liczba.rehedg,
+                  typ2.param = mean) )
 }
-dane.liczba.rehedg <- c(1, 4, 12)
-dane.liczba.iteracji <- 1000
 
-dane.part.A.abstract <- sapply(dane.liczba.rehedg,
-                               fun.apply.for.loss,
-                               liczba.iteracji = dane.liczba.iteracji)
+############ A.ABSTRACT czyli zastosowanie 'sapply' na 'fun.eval.loss.preprocess1' dla liczby reheegingow ###########
+####################################################################################################################
+fun.eval.loss.abstract <- function(liczba.iteracji, liczba.rehedg, typ1, strike) {
+  return ( sapply(liczba.rehedg,
+                  fun.eval.loss.preprocess1,
+                  liczba.iteracji = liczba.iteracji,
+                  typ1 = typ1,
+                  strike = strike,                  
+                  s = dane.s0.WIG20,
+                  r = param.r,
+                  sd = dane.sd.WIG20,
+                  T = param.T,
+                  mean = dane.mean.WIG20) )
+}
 
-mean(dane.part.A.abstract[,1])
-mean(dane.part.A.abstract[,2])
-mean(dane.part.A.abstract[,3])
-
-#############################################################################################
-# czesc rzeczywista
-#############################################################################################
-dane.part.A.reality <- lapply(c(4,10),
-                              fun.eval.loss.reality,
-                              s = dane.s0.WIG20,
-                              strike = 3000,
-                              r = param.r,
-                              sd = dane.sd.WIG20,
-                              T = param.T,
-                              przyszle.dane = dane.przyszle.WIG20[,5],
-                              numer.wiersza = 153)
-
-dane.part.A.reality[1]
-
-
-
-#############################################################################################
-# użycie wykresów
-#############################################################################################
-
-rysuj.histogram(dane = dane.part.A.abstract[,2])
-
-rysuj.kwantyle.straty(dane.part.A.abstract, circle.alpha = .01, circle.size = 7)
-
-
-
+############ A.REALITY czyli zastosowanie 'lapply' na 'fun.eval' dla liczby reheegingow ###########
+###################################################################################################
+fun.eval.loss.reality <- function(liczba.rehedg, typ1, strike) {
+  return ( lapply(liczba.rehedg,
+                  fun.eval.loss,
+                  typ1 = typ1,
+                  strike = strike,
+                  typ2 = 1,
+                  s = dane.s0.WIG20,
+                  r = param.r,
+                  sd = dane.sd.WIG20,
+                  T = 1,                   
+                  typ2.param = dane.przyszle.WIG20[,5]) )
+}
