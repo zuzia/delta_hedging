@@ -23,6 +23,7 @@ source("R\\functions.r")
 source("R\\charts.r") 
 source("R\\part_A.r")  
 require("ggplot2")
+require("gridExtra")
 
 #############################################################################################
 #############################################################################################
@@ -38,11 +39,9 @@ param.data.koniec <- "2011-02-01"
 param.data.sym.poczatek <- "2011-02-01"
 param.data.sym.koniec <- "2012-02-01"
 param.string <- "part_zero"
-param.r <- 0.05
+param.r <- 0.032
 param.T <- 159/252
 param.numer.wiersza <- 153
-
-dir.create(sprintf("./images/%s",param.string),showWarnings=F)
 
 #############################################################################################
 #############################################################################################
@@ -91,25 +90,17 @@ dane.kowariancja <- cov(dane.zwroty.akcji[,1],
 #############################################################################################
 
 
-dane.part.A.abstract <- fun.eval.loss.abstract(1000, 5, 0, 2900)
-rysuj.histogram(dane = dane.part.A.abstract, szerokosc.faktyczna = 5)
+dane.part.A.abstract.1 <- fun.eval.loss.abstract(1000, 5, 0, 2900)
+rysuj.histogram(dane = dane.part.A.abstract.1, szerokosc.faktyczna = 5)
 
-dane.part.A.abstract <- fun.eval.loss.abstract(1000, 1:20, 0, 2600)
-rysuj.kwantyle.straty(dane.part.A.abstract, circle.alpha = .01, circle.size = 7)
+dane.part.A.abstract.2 <- fun.eval.loss.abstract(1000, 1:20, 0, 2600)
+rysuj.kwantyle.straty(dane.part.A.abstract.2, circle.alpha = .01, circle.size = 7)
 
+dane.part.A.reality.1 <- fun.eval.loss.reality(30, 0, 2600)[[1]][,5]
+rysuj.linie(dane.part.A.reality.1)
 
-fun.eval.loss.reality(c(3,6), 0, 2300)
-
-
-
-
-
-
-
-
-
-
-
+dane.part.A.reality.2 <- fun.eval.loss.reality(30, 0, 2600)[[1]][,2]
+rysuj.linie(dane.part.A.reality.2, szare = FALSE, bary = FALSE)
 
 
 

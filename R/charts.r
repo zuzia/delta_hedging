@@ -1,8 +1,51 @@
 
+# input to wektor liczb (wartość portfela/delty/etc w kolejnych chwilach)
+# szare: można dać FALSE, wtedy na górnym wykresie nie ma szrego tła w okolicy zera
+# bary: można dać FALSe, wtedy jest sam wykres liniowy (ten górny)
+
+rysuj.linie <- function(input, szare = TRUE, bary = TRUE) {
+  
+  t0 <- input
+  maks <- max(abs(t0))/15
+  t1 <- c(0)
+  for(i in 2:length(t0)) {
+    t1 <- c(t1, t0[i] - t0[i-1])
+  }
+  t2 <- data.frame(x = 1:length(t1), y1 = t0, y2 = t1, min = rep(-maks, length(t1)), max = rep(maks, length(t1)))
+  
+  w1 <- ggplot(data = t2)
+  
+  if(szare == TRUE)
+    w1 <- w1 + geom_ribbon(aes(x = x, ymin = min, ymax = max), fill = "grey", alpha = .50)
+
+  w1 <- w1 +
+    geom_line(aes(x = x, y = y1), color = "black", size = 1) +
+    theme_bw() +
+    theme(legend.position = "none", axis.text.y = element_text(size=15), axis.text.x = element_text(size=15)) +
+    xlab("") +
+    ylab("") +
+    ggtitle("")
+  
+  if(bary == TRUE) {
+    w2 <- ggplot() +
+      geom_bar(data = t2, aes(x = x, y = y2 * (y2 > 0)), fill = "#282634", stat="identity") +
+      geom_bar(data = t2, aes(x = x, y = y2 * (y2 < 0)), fill = "#FF4E44", stat="identity") +
+      theme_bw() +
+      theme(legend.position = "none", axis.text.y = element_text(size=15), axis.text.x = element_text(size=15)) +
+      xlab("") +
+      ylab("") +
+      ggtitle("")
+  
+    w3 <- grid.arrange(arrangeGrob(w1, w2, heights=c(0.4, 0.6), ncol=1),ncol = 1)
+  } else {
+    w3 <- w1
+  }
+  
+  return (w3)  
+}
+
 rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.symulacji, kolor.kwantyle, kolor.linia, nazwa ="")
 {
-
-  
   rownames(notowania.symulacje) <- c()
   liczba.dni <- length(rownames(notowania.symulacje))
   pierwsza.symulacja <- 2 # numer kolumny, w ktorej znajduje sie 1 symulacja
@@ -53,14 +96,14 @@ rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88AB
   sigma <- sd(dane)
   
   wykres <- ggplot(data.frame(ax = dane), aes(x = ax)) +
-    xlab("strata") +
-    ylab("liczba") +
-    ggtitle(nazwa) +
+    xlab("") +
+    ylab("") +
+    ggtitle("") +
     geom_rect(aes_string(xmin = mi - sigma, xmax = mi + sigma, ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .005) + #odchylenie
     geom_rect(aes_string(xmin = mi-(sigma/30) , xmax = mi+(sigma/30), ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .05) + #srednia
     geom_histogram(binwidth = szerokosc.faktyczna, aes(fill = ..count..)) + #histogram
     scale_fill_gradient("", low = kolor.niski, high = kolor.wysoki) +
-    theme(legend.position = "none") 
+    theme(legend.position = "none", axis.text.y = element_text(size=15), axis.text.x = element_text(size=15))
   
   return( wykres )
 }
