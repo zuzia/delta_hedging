@@ -51,7 +51,6 @@ fun.eval.delta <- function(typ, s, r, T, t, sd, strike) {
 # jezeli typ2 = 0 to wtedy w zmiennej 'typ2.param' przekazujemy 'mean'
 # jezeli typ2 = 1 to wtedy w zmiennej 'typ2.param' przekazujemy 'przyszle.dane'
 fun.eval.loss <- function(typ1, typ2, s, strike, r, sd, T, liczba.rehedg, typ2.param) {
-  
   if(typ2 == 0) 
     mean <- typ2.param
   else if(typ2 == 1)
@@ -95,6 +94,7 @@ fun.eval.loss <- function(typ1, typ2, s, strike, r, sd, T, liczba.rehedg, typ2.p
   
 }
 
+
 ############ wyciagniecie koncowej straty z 'fun.eval.loss' iles razy ###########
 ################################################################################
 # pusta.zmienna: wywołanie 'fun.eval.loss tyle razy ile wynosi dlugosc 'pusta.zmienna'
@@ -105,6 +105,7 @@ fun.eval.loss.simple <- function(typ1, typ2, s, strike, r, sd, T, liczba.rehedg,
 ############ zastosowanie 'sapply' na 'fun.eval.loss.simple' dla liczby iteracji ###########
 ###########################################################################################
 fun.eval.loss.preprocess1 <- function(liczba.iteracji, liczba.rehedg, typ1, s, strike, r, sd, T, mean) {
+  set.seed(111)
   return ( sapply(rep(1,liczba.iteracji),
                   fun.eval.loss.simple,
                   typ1 = typ1,

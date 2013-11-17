@@ -89,43 +89,128 @@ dane.kowariancja <- cov(dane.zwroty.akcji[,1],
 #############################################################################################
 #############################################################################################
 
+hist.strike <- 2400
+hist.type <- 0
+hist.iteration.no <- 5000
 
-dane.part.A.abstract.hist.1 <- fun.eval.loss.abstract(5000, 1, 0, 2400)
-dane.part.A.abstract.hist.2 <- fun.eval.loss.abstract(5000, 4, 0, 2400)
-dane.part.A.abstract.hist.3 <- fun.eval.loss.abstract(5000, 7, 0, 2400)
-dane.part.A.abstract.hist.3 <- fun.eval.loss.abstract(5000, 10, 0, 2400)
+set.seed(5)
+dane.part.A.abstract.hist.1 <- remove_outliers(fun.eval.loss.abstract(hist.iteration.no, 1, hist.type, hist.strike))
+dane.part.A.abstract.hist.2 <- remove_outliers(fun.eval.loss.abstract(hist.iteration.no, 4, hist.type, hist.strike))
+dane.part.A.abstract.hist.3 <- remove_outliers(fun.eval.loss.abstract(hist.iteration.no, 7, hist.type, hist.strike))
+dane.part.A.abstract.hist.4 <- remove_outliers(fun.eval.loss.abstract(hist.iteration.no, 30, hist.type, hist.strike))
 
-
-remove_outliers <- function(x, na.rm = TRUE, ...) {
-  qnt <- quantile(x, probs=c(.05, .95), na.rm = na.rm, ...)
-  H <- 1.5 * IQR(x, na.rm = na.rm)
-  y <- x
-  y[x < (qnt[1] - H)] <- NA
-  y[x > (qnt[2] + H)] <- NA
-  y
-}
-
-hist.1 <- rysuj.histogram(dane = dane.part.A.abstract.hist.1, szerokosc.faktyczna = 5)
-hist.2 <- rysuj.histogram(dane = dane.part.A.abstract.hist.2, szerokosc.faktyczna = 5)
-hist.3 <- rysuj.histogram(dane = dane.part.A.abstract.hist.3, szerokosc.faktyczna = 5)
-hist.4 <- rysuj.histogram(dane = dane.part.A.abstract.hist.4, szerokosc.faktyczna = 5)
-
+hist.1 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.1, -140, 140), szerokosc.faktyczna = 5, nazwa = "1 rehedging")
+hist.2 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.2, -140, 140), szerokosc.faktyczna = 5, nazwa = "4 rehedgingi")
+hist.3 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.3, -140, 140), szerokosc.faktyczna = 5, nazwa = "7 rehedgingów")
+hist.4 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.4, -140, 140), szerokosc.faktyczna = 5, nazwa = "10 rehedgingów")
 hist.0 <- grid.arrange(hist.1, hist.2, hist.3, hist.4, ncol = 2)
 
 
-
-dane.part.A.abstract.2 <- fun.eval.loss.abstract(1000, 1:15, 0, 2600)
+dane.part.A.abstract.2 <- fun.eval.loss.abstract(1000, 1:15, 1, 2900)
 rysuj.kwantyle.straty(dane.part.A.abstract.2)
 
-dane.part.A.reality.1 <- fun.eval.loss.reality(30, 1, 2600)[[1]][,5]
+dane.part.A.reality.1 <- fun.eval.loss.reality(30, 0, 2600)[[1]][,5]
 rysuj.linie(dane.part.A.reality.1)
 
-dane.part.A.reality.2 <- fun.eval.loss.reality(30, 0, 2600)[[1]][,2]
+rysuj.histogram(fun.eval.loss.abstract(hist.iteration.no, 30, hist.type, hist.strike), szerokosc.faktyczna = 5)
+
+dane.part.A.reality.2 <- fun.eval.loss.reality(30, 1, 3000)[[1]][,2]
 rysuj.linie(dane.part.A.reality.2, szare = FALSE, bary = FALSE)
 
 
+fun.eval.loss.reality(31, 0, 2400)[[1]][33,5]
+fun.eval.loss.reality(31, 0, 2600)[[1]][33,5]
+fun.eval.loss.reality(31, 1, 2900)[[1]][33,5]
+fun.eval.loss.reality(31, 1, 3000)[[1]][33,5]
+# t1.call <- c()
+
+# for(i in 1:11) {
+#   t1.call <- c(t1.call, fun.eval.loss.reality(30, 0, (2000+i*100))[[1]][32,5])
+# }
+# t1.put <- c()
+# for(i in 1:11) {
+#   t1.put <- c(t1.put, fun.eval.loss.reality(30, 1, (2000+i*100))[[1]][32,5])
+# }
+# dane.part.a.reality.0 <- data.frame(strike = c(2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3100), call = t1.call, put = t1.put)
+# 
+# 
+
+#############################################################################################
+#############################################################################################
+# analiza wrażliwości
+#############################################################################################
+#############################################################################################
+###########################################################################################
+
+ile.dysk <- 20
+d.r <- seq(from = 0, to = param.r, length.out = ile.dysk)
+d.mean <- seq(from = 0, to = dane.mean.WIG20, length.out = ile.dysk)
+d.sd <- seq(from = 0, to = dane.sd.WIG20, length.out = ile.dysk)
+
+d.res.r <- sapply(d.r,
+             fun.eval.loss.preprocess1,
+             liczba.iteracji = 100,
+             liczba.rehedg = 31,
+             typ1 = 0,
+             s = dane.s0.WIG20,
+             strike = 2600,
+             sd = dane.sd.WIG20,
+             T = param.T,
+             mean = dane.mean.WIG20)
+d.r.result <- c()
+for(i in 1:ile.dysk) {
+  d.r.result <- c(d.r.result, mean(d.res.r[,i]))
+}
+
+d.res.sd <- sapply(d.sd,
+                  fun.eval.loss.preprocess1,
+                  liczba.iteracji = 100,
+                  liczba.rehedg = 31,
+                  typ1 = 0,
+                  s = dane.s0.WIG20,
+                  strike = 2600,
+                  r = param.r,
+                  T = param.T,
+                  mean = dane.mean.WIG20)
+d.sd.result <- c()
+for(i in 1:ile.dysk) {
+  d.sd.result <- c(d.sd.result, mean(d.res.sd[,i]))
+}
+d.res.mean <- sapply(d.mean,
+                   fun.eval.loss.preprocess1,
+                   liczba.iteracji = 100,
+                   liczba.rehedg = 31,
+                   typ1 = 0,
+                   s = dane.s0.WIG20,
+                   strike = 2600,
+                   r = param.r,
+                   T = param.T,
+                   sd = dane.sd.WIG20)
+d.mean.result <- c()
+for(i in 1:ile.dysk) {
+  d.mean.result <- c(d.mean.result, mean(d.res.mean[,i]))
+}
+
+d.x <- seq(from = 0, to = 1, length.out = ile.dysk)
+
+d <- data.frame(axis.x.param = d.x, .mean = d.mean.result, .sd = d.sd.result, .rate = d.r.result)
+
+wykres <- rysuj.analiza.wrazliwosci(d)
+wykres
+
+#############################################################################################
+#############################################################################################
+# premia za ryzko
+#############################################################################################
+#############################################################################################
 
 
+hist.strike <- 2600
+hist.type <- 0
+hist.iteration.no <- 100
 
+set.seed(5)
+dane.part.A.abstract.risk.premium <- fun.eval.loss.abstract(hist.iteration.no, 1, hist.type, hist.strike)
+t1 <- dane.part.A.abstract.risk.premium
 
-
+quantile(t1, probs = c(0.9))

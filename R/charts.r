@@ -1,3 +1,26 @@
+##############################
+### LINIOWY DLA PARAMETRÓW ###
+
+#A600A6 - fioletowy [mean]
+#E40045 - czerwony [sd]
+#530FAD - niebieski [rate]
+
+rysuj.analiza.wrazliwosci <- function(data, c1 = "#A600A6", c2 = "#E40045", c3 = "#530FAD") {
+  chart <- ggplot(data, aes(x = axis.x.param)) +
+    theme(axis.text.y = element_text(size=27), axis.text.x = element_text(size=27)) +
+    xlab("") +
+    ylab("") +
+    geom_line(aes_string(y = ".mean"), size = 15, colour = c1, alpha = .10) +
+    geom_line(aes_string(y = ".sd"), size = 15, colour = c2, alpha = .10) +
+    geom_line(aes_string(y = ".rate"), size = 15, colour = c3, alpha = .10) +
+    geom_line(aes_string(y = ".mean"), size = 3, colour = c1, alpha = .90) +
+    geom_line(aes_string(y = ".sd"), size = 3, colour = c2, alpha = .90) +
+    geom_line(aes_string(y = ".rate"), size = 3, colour = c3, alpha = .90)
+  return (chart)
+}
+
+
+
 
 # input to wektor liczb (wartość portfela/delty/etc w kolejnych chwilach)
 # szare: można dać FALSE, wtedy na górnym wykresie nie ma szrego tła w okolicy zera
@@ -90,7 +113,7 @@ rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.sym
   return( wykres )
 }
 
-rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88ABC2", kolor.sigma = "red", szerokosc.faktyczna = 5, nazwa = "wykres")
+rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88ABC2", kolor.sigma = "red", szerokosc.faktyczna = 5, nazwa = "")
 {
   mi <- mean(dane)
   sigma <- sd(dane)
@@ -98,7 +121,7 @@ rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88AB
   wykres <- ggplot(data.frame(ax = dane), aes(x = ax)) +
     xlab("") +
     ylab("") +
-    ggtitle("") +
+    ggtitle(nazwa) +
     geom_rect(aes_string(xmin = mi - sigma, xmax = mi + sigma, ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .005) + #odchylenie
     geom_rect(aes_string(xmin = mi-(sigma/30) , xmax = mi+(sigma/30), ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .05) + #srednia
     geom_histogram(binwidth = szerokosc.faktyczna, aes(fill = ..count..)) + #histogram
