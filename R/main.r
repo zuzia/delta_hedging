@@ -90,13 +90,34 @@ dane.kowariancja <- cov(dane.zwroty.akcji[,1],
 #############################################################################################
 
 
-dane.part.A.abstract.1 <- fun.eval.loss.abstract(1000, 5, 0, 2900)
-rysuj.histogram(dane = dane.part.A.abstract.1, szerokosc.faktyczna = 5)
+dane.part.A.abstract.hist.1 <- fun.eval.loss.abstract(5000, 1, 0, 2400)
+dane.part.A.abstract.hist.2 <- fun.eval.loss.abstract(5000, 4, 0, 2400)
+dane.part.A.abstract.hist.3 <- fun.eval.loss.abstract(5000, 7, 0, 2400)
+dane.part.A.abstract.hist.3 <- fun.eval.loss.abstract(5000, 10, 0, 2400)
 
-dane.part.A.abstract.2 <- fun.eval.loss.abstract(1000, 1:20, 0, 2600)
-rysuj.kwantyle.straty(dane.part.A.abstract.2, circle.alpha = .01, circle.size = 7)
 
-dane.part.A.reality.1 <- fun.eval.loss.reality(30, 0, 2600)[[1]][,5]
+remove_outliers <- function(x, na.rm = TRUE, ...) {
+  qnt <- quantile(x, probs=c(.05, .95), na.rm = na.rm, ...)
+  H <- 1.5 * IQR(x, na.rm = na.rm)
+  y <- x
+  y[x < (qnt[1] - H)] <- NA
+  y[x > (qnt[2] + H)] <- NA
+  y
+}
+
+hist.1 <- rysuj.histogram(dane = dane.part.A.abstract.hist.1, szerokosc.faktyczna = 5)
+hist.2 <- rysuj.histogram(dane = dane.part.A.abstract.hist.2, szerokosc.faktyczna = 5)
+hist.3 <- rysuj.histogram(dane = dane.part.A.abstract.hist.3, szerokosc.faktyczna = 5)
+hist.4 <- rysuj.histogram(dane = dane.part.A.abstract.hist.4, szerokosc.faktyczna = 5)
+
+hist.0 <- grid.arrange(hist.1, hist.2, hist.3, hist.4, ncol = 2)
+
+
+
+dane.part.A.abstract.2 <- fun.eval.loss.abstract(1000, 1:15, 0, 2600)
+rysuj.kwantyle.straty(dane.part.A.abstract.2)
+
+dane.part.A.reality.1 <- fun.eval.loss.reality(30, 1, 2600)[[1]][,5]
 rysuj.linie(dane.part.A.reality.1)
 
 dane.part.A.reality.2 <- fun.eval.loss.reality(30, 0, 2600)[[1]][,2]

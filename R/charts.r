@@ -78,7 +78,8 @@ rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.sym
   
   wykres <- ggplot(dane.do.wykresu, aes(x = numer.notowania)) + xlab("Numer notowania") + ylab("Cena") # + ggtitle(paste("Symulacja", nazwa))
   wykres <- wykres + geom_line(aes(y = notowanie.values, group = notowanie.ind), alpha = .10)
-  wykres <- wykres + geom_ribbon(aes(ymin = min, ymax = kwantyl.05), fill = kolor.kwantyle, alpha = .30) +
+  wykres <- wykres +
+    geom_ribbon(aes(ymin = min, ymax = kwantyl.05), fill = kolor.kwantyle, alpha = .30) +
     geom_ribbon(aes(ymin = kwantyl.05, ymax = kwantyl.30), fill = kolor.kwantyle, alpha = .50) +
     geom_ribbon(aes(ymin = kwantyl.30, ymax = kwantyl.70), fill = kolor.kwantyle, alpha = .70) +
     geom_ribbon(aes(ymin = kwantyl.70, ymax = kwantyl.95), fill = kolor.kwantyle, alpha = .50) +
@@ -87,7 +88,6 @@ rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.sym
   
   
   return( wykres )
-  
 }
 
 rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88ABC2", kolor.sigma = "red", szerokosc.faktyczna = 5, nazwa = "wykres")
@@ -108,7 +108,7 @@ rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88AB
   return( wykres )
 }
 
-rysuj.kwantyle.straty <- function(dane, circle.kolor = "#E038AD", kolor.kwantyle = "#640CAB", circle.size = 8, circle.alpha = .02, nazwa = "wykres") {
+rysuj.kwantyle.straty <- function(dane, circle.kolor = "#547980", kolor.kwantyle = "#45ADA8", circle.alpha = .04, circle.size = 7) {
   
   pre.kwantyle <- data.frame(t(apply(t(dane), 1, quantile, probs = c(0.05, 0.3, 0.7, 0.95))))
   minima <- data.frame((apply(t(dane), 1, min)))
@@ -121,13 +121,17 @@ rysuj.kwantyle.straty <- function(dane, circle.kolor = "#E038AD", kolor.kwantyle
   dane.do.wykresu <- data.frame(ax = sort(rep(1 : ncol(dane), times = nrow(dane))), value = stack(data.frame(dane))["values"])
   
   wykres <- ggplot(dane.do.wykresu, aes(x = ax)) +
-    geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.5, ymax = min), fill = kolor.kwantyle, alpha = .30) +
+    xlab("") +
+    ylab("") +
+    ggtitle("") +
+    geom_point(aes(y = values), size = circle.size, alpha = circle.alpha, colour = circle.kolor) +
+    #geom_ribbon(data = kwantyle, aes(x = ax, ymin = min, ymax = kwantyl.5), fill = kolor.kwantyle, alpha = .30) +
     geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.5, ymax = kwantyl.30), fill = kolor.kwantyle, alpha = .50) +
-    geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.30, ymax = kwantyl.70), fill = kolor.kwantyle, alpha = .70) +
+    geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.30, ymax = kwantyl.70), fill = kolor.kwantyle, alpha = .90) +
     geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.70, ymax = kwantyl.95), fill = kolor.kwantyle, alpha = .50) +
-    geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.95, ymax = max), fill = kolor.kwantyle, alpha = .30) +
-    geom_point(aes(y = values), size = circle.size, alpha = circle.alpha, colour = circle.kolor)
-  
+    #geom_ribbon(data = kwantyle, aes(x = ax, ymin = kwantyl.95, ymax = max), fill = kolor.kwantyle, alpha = .30) +
+    theme(legend.position = "none", axis.text.y = element_text(size=15), axis.text.x = element_text(size=15))
+
   return ( wykres )
 }
 
