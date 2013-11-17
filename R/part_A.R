@@ -105,7 +105,7 @@ fun.eval.loss.simple <- function(typ1, typ2, s, strike, r, sd, T, liczba.rehedg,
 ############ zastosowanie 'sapply' na 'fun.eval.loss.simple' dla liczby iteracji ###########
 ###########################################################################################
 fun.eval.loss.preprocess1 <- function(liczba.iteracji, liczba.rehedg, typ1, s, strike, r, sd, T, mean) {
-  set.seed(111)
+  set.seed(78)
   return ( sapply(rep(1,liczba.iteracji),
                   fun.eval.loss.simple,
                   typ1 = typ1,

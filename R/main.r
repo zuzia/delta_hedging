@@ -207,10 +207,15 @@ wykres
 
 hist.strike <- 2600
 hist.type <- 0
-hist.iteration.no <- 100
+hist.iteration.no <- 10000
 
 set.seed(5)
 dane.part.A.abstract.risk.premium <- fun.eval.loss.abstract(hist.iteration.no, 1, hist.type, hist.strike)
 t1 <- dane.part.A.abstract.risk.premium
 
-quantile(t1, probs = c(0.9))
+# cena opcji
+fun.eval.option(0, dane.s0.WIG20, param.r, param.T, 0, dane.sd.WIG20, 2600)
+
+# premia
+quantile(t1, probs = c(0.1))*exp(-param.r*param.T)
+
