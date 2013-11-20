@@ -10,9 +10,9 @@ komputer <- Sys.info()["nodename"]
 {
   if(komputer == "DYM")
     setwd("C:\\Users\\Jakub\\SkyDrive\\GitHub\\delta_hedging\\")
-  else if(komputer == "")
-    setwd("SYDNEYBOOK")
-  else if (komputer == "C:\\Users\\Sydney\\Documents\\GitHub\\delta_hedging\\") 
+  else if(komputer == "SYDNEYBOOK")
+    setwd("C:\\Users\\Sydney\\Documents\\GitHub\\delta_hedging\\")
+  else if (komputer == "") 
     setwd("")
   else
     setwd("")
