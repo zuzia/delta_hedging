@@ -23,10 +23,8 @@ rysuj.analiza.wrazliwosci <- function(data, c1 = "#A600A6", c2 = "#E40045", c3 =
 
 
 # input to wektor liczb (wartość portfela/delty/etc w kolejnych chwilach)
-# szare: można dać FALSE, wtedy na górnym wykresie nie ma szrego tła w okolicy zera
-# bary: można dać FALSe, wtedy jest sam wykres liniowy (ten górny)
 
-rysuj.linie <- function(input, szare = TRUE, bary = TRUE) {
+rysuj.linie <- function(input) {
   
   t0 <- input
   maks <- max(abs(t0))/15
@@ -49,23 +47,36 @@ rysuj.linie <- function(input, szare = TRUE, bary = TRUE) {
     ylab("") +
     ggtitle("")
   
-  if(bary == TRUE) {
-    w2 <- ggplot() +
-      geom_bar(data = t2, aes(x = x, y = y2 * (y2 > 0)), fill = "#282634", stat="identity") +
-      geom_bar(data = t2, aes(x = x, y = y2 * (y2 < 0)), fill = "#FF4E44", stat="identity") +
-      theme_bw() +
-      theme(legend.position = "none", axis.text.y = element_text(size=15), axis.text.x = element_text(size=15)) +
-      xlab("") +
-      ylab("") +
-      ggtitle("")
+  w2 <- ggplot() +
+    geom_bar(data = t2, aes(x = x, y = y2 * (y2 > 0)), fill = "#282634", stat="identity") +
+    geom_bar(data = t2, aes(x = x, y = y2 * (y2 < 0)), fill = "#FF4E44", stat="identity") +
+    theme_bw() +
+    theme(legend.position = "none", axis.text.y = element_text(size=15), axis.text.x = element_text(size=15)) +
+    xlab("") +
+    ylab("") +
+    ggtitle("")
   
     w3 <- grid.arrange(arrangeGrob(w1, w2, heights=c(0.4, 0.6), ncol=1),ncol = 1)
-  } else {
-    w3 <- w1
-  }
   
   return (w3)  
 }
+
+rysuj.linie2 <- function(input) {
+  
+  w1 <- ggplot(data = input) +
+    geom_line(aes(x = x, y = y1), color = "#556270", size = 2) +
+    geom_line(aes(x = x, y = y2), color = "#4ECDC4", size = 2) +
+    geom_line(aes(x = x, y = y3), color = "#C7F464", size = 2) +
+    geom_line(aes(x = x, y = y4), color = "#FF6B6B", size = 2) +
+    theme_bw() +
+    theme(legend.position = "none", axis.text.y = element_text(size=15), axis.text.x = element_text(size=15)) +
+    xlab("") +
+    ylab("") +
+    ggtitle("")
+  
+  return (w1)  
+}
+
 
 rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.symulacji, kolor.kwantyle, kolor.linia, nazwa ="")
 {
@@ -113,7 +124,7 @@ rysuj.symulacje <- function(notowania.symulacje, notowania.faktyczne, liczba.sym
   return( wykres )
 }
 
-rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88ABC2", kolor.sigma = "red", szerokosc.faktyczna = 5, nazwa = "")
+rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88ABC2", kolor.sigma = "red", kolor.reality = "#282634", szerokosc.faktyczna = 5, nazwa = "", reality = reality)
 {
   mi <- mean(dane)
   sigma <- sd(dane)
@@ -124,6 +135,7 @@ rysuj.histogram <- function(dane, kolor.niski = "#D0E0EB", kolor.wysoki = "#88AB
     ggtitle(nazwa) +
     geom_rect(aes_string(xmin = mi - sigma, xmax = mi + sigma, ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .005) + #odchylenie
     geom_rect(aes_string(xmin = mi-(sigma/30) , xmax = mi+(sigma/30), ymin = 0, ymax = Inf), fill = kolor.sigma, alpha = .05) + #srednia
+    geom_rect(aes_string(xmin = reality - 1 , xmax = reality + 1, ymin = 0, ymax = Inf), fill = kolor.reality, alpha = .05) + #realny zysk
     geom_histogram(binwidth = szerokosc.faktyczna, aes(fill = ..count..)) + #histogram
     scale_fill_gradient("", low = kolor.niski, high = kolor.wysoki) +
     theme(legend.position = "none", axis.text.y = element_text(size=15), axis.text.x = element_text(size=15))

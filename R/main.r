@@ -99,12 +99,20 @@ dane.part.A.abstract.hist.2 <- remove_outliers(fun.eval.loss.abstract(hist.itera
 dane.part.A.abstract.hist.3 <- remove_outliers(fun.eval.loss.abstract(hist.iteration.no, 7, hist.type, hist.strike))
 dane.part.A.abstract.hist.4 <- remove_outliers(fun.eval.loss.abstract(hist.iteration.no, 30, hist.type, hist.strike))
 
-hist.1 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.1, -140, 140), szerokosc.faktyczna = 5, nazwa = "1 rehedging")
-hist.2 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.2, -140, 140), szerokosc.faktyczna = 5, nazwa = "4 rehedgingi")
-hist.3 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.3, -140, 140), szerokosc.faktyczna = 5, nazwa = "7 rehedgingów")
-hist.4 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.4, -140, 140), szerokosc.faktyczna = 5, nazwa = "10 rehedgingów")
+dane.part.A.reality.hist.1 <- fun.eval.loss.reality(1, 0, 2400)[[1]][1+2,5]
+dane.part.A.reality.hist.2 <- fun.eval.loss.reality(4, 0, 2400)[[1]][4+2,5]
+dane.part.A.reality.hist.3 <- fun.eval.loss.reality(7, 0, 2400)[[1]][7+2,5]
+dane.part.A.reality.hist.4 <- fun.eval.loss.reality(30, 0, 2400)[[1]][30+2,5]
+
+hist.1 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.1, -140, 140), szerokosc.faktyczna = 5, nazwa = "1 rehedging", reality = dane.part.A.reality.hist.1)
+hist.2 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.2, -140, 140), szerokosc.faktyczna = 5, nazwa = "4 rehedgingi", reality = dane.part.A.reality.hist.2)
+hist.3 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.3, -140, 140), szerokosc.faktyczna = 5, nazwa = "7 rehedgingów", reality = dane.part.A.reality.hist.3)
+hist.4 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.4, -140, 140), szerokosc.faktyczna = 4, nazwa = "10 rehedgingów", reality = dane.part.A.reality.hist.4)
 hist.0 <- grid.arrange(hist.1, hist.2, hist.3, hist.4, ncol = 2)
 
+#jeden histogram bez odrzucania odstających (dla Kasi)
+dane.part.A.abstract.hist.5 <- fun.eval.loss.abstract(hist.iteration.no, 7, hist.type, hist.strike)
+hist.5 <- rysuj.histogram(dane = c(dane.part.A.abstract.hist.5, -140, 140), szerokosc.faktyczna = 5, nazwa = "1 rehedging", reality = dane.part.A.reality.hist.3)
 
 dane.part.A.abstract.2 <- fun.eval.loss.abstract(1000, 1:15, 1, 2900)
 rysuj.kwantyle.straty(dane.part.A.abstract.2)
@@ -112,16 +120,27 @@ rysuj.kwantyle.straty(dane.part.A.abstract.2)
 dane.part.A.reality.1 <- fun.eval.loss.reality(30, 0, 2600)[[1]][,5]
 rysuj.linie(dane.part.A.reality.1)
 
-rysuj.histogram(fun.eval.loss.abstract(hist.iteration.no, 30, hist.type, hist.strike), szerokosc.faktyczna = 5)
+#####rysuj.histogram(fun.eval.loss.abstract(hist.iteration.no, 30, hist.type, hist.strike), szerokosc.faktyczna = 5)
 
 dane.part.A.reality.2 <- fun.eval.loss.reality(30, 1, 3000)[[1]][,2]
-rysuj.linie(dane.part.A.reality.2, szare = FALSE, bary = FALSE)
+dane.part.A.reality.3 <- fun.eval.loss.reality(30, 1, 2800)[[1]][,2]
+dane.part.A.reality.4 <- fun.eval.loss.reality(30, 1, 2500)[[1]][,2]
+dane.part.A.reality.5 <- fun.eval.loss.reality(30, 1, 2300)[[1]][,2]
+dane.part.A.reality.6 <- data.frame(x = (1:length(dane.part.A.reality.2)),
+                                    y1 = dane.part.A.reality.2,
+                                    y2 = dane.part.A.reality.3,
+                                    y3 = dane.part.A.reality.4,
+                                    y4 = dane.part.A.reality.5)
+
+rysuj.linie2(dane.part.A.reality.6)
 
 
 fun.eval.loss.reality(31, 0, 2400)[[1]][33,5]
 fun.eval.loss.reality(31, 0, 2600)[[1]][33,5]
 fun.eval.loss.reality(31, 1, 2900)[[1]][33,5]
 fun.eval.loss.reality(31, 1, 3000)[[1]][33,5]
+
+
 # t1.call <- c()
 
 # for(i in 1:11) {
