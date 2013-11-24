@@ -10,9 +10,9 @@ rysuj.analiza.wrazliwosci <- function(data, c1 = "#A600A6", c2 = "#E40045", c3 =
     theme(axis.text.y = element_text(size=27), axis.text.x = element_text(size=27)) +
     xlab("") +
     ylab("") +
-    geom_line(aes_string(y = ".mean"), size = 15, colour = c1, alpha = .10) +
-    geom_line(aes_string(y = ".sd"), size = 15, colour = c2, alpha = .10) +
-    geom_line(aes_string(y = ".rate"), size = 15, colour = c3, alpha = .10) +
+#     geom_line(aes_string(y = ".mean"), size = 15, colour = c1, alpha = .10) +
+#     geom_line(aes_string(y = ".sd"), size = 15, colour = c2, alpha = .10) +
+#     geom_line(aes_string(y = ".rate"), size = 15, colour = c3, alpha = .10) +
     geom_line(aes_string(y = ".mean"), size = 3, colour = c1, alpha = .90) +
     geom_line(aes_string(y = ".sd"), size = 3, colour = c2, alpha = .90) +
     geom_line(aes_string(y = ".rate"), size = 3, colour = c3, alpha = .90)
@@ -20,6 +20,16 @@ rysuj.analiza.wrazliwosci <- function(data, c1 = "#A600A6", c2 = "#E40045", c3 =
 }
 
 
+rysuj.premie.za.ryzyko <- function(data) {
+  ggplot(data, aes(x=x)) +
+    geom_ribbon(aes(x=x, ymin = -0.02, ymax = 0.02), fill = "grey", alpha = 0.50) +
+    geom_rect(aes_string(xmin = 0.1-0.002, xmax = 0.1+0.003, ymin = -Inf, ymax = Inf), fill = "red", alpha = .005) +
+    geom_line(aes(y=y), size = 1) +
+    xlab("kwantyl") +
+    ylab("% ceny opcji") +
+    theme_bw() +
+    theme(legend.position = "none", axis.text.y = element_text(size=15), axis.text.x = element_text(size=15))  
+}
 
 
 # input to wektor liczb (wartość portfela/delty/etc w kolejnych chwilach)
@@ -36,8 +46,8 @@ rysuj.linie <- function(input) {
   
   w1 <- ggplot(data = t2)
   
-  if(szare == TRUE)
-    w1 <- w1 + geom_ribbon(aes(x = x, ymin = min, ymax = max), fill = "grey", alpha = .50)
+
+  w1 <- w1 + geom_ribbon(aes(x = x, ymin = min, ymax = max), fill = "grey", alpha = .50)
 
   w1 <- w1 +
     geom_line(aes(x = x, y = y1), color = "black", size = 1) +

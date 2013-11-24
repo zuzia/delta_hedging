@@ -10,7 +10,7 @@ S <- seq(1000,4000,len=300)
 d <- -DCall(2700,2300,param.r,dane.sd.WIG20,param.T)
 plot(S,-DCall(S,2300,param.r,dane.sd.WIG20,param.T)-d, xlab="kurs",ylab="delta",type='l')
 
-##### funkcja symyluj¹ca portfel #####
+##### funkcja symyluj?ca portfel #####
 delta.hedging.0 <- function(S0,r,sd,T,mean) {
   delta <- -DCall(S0,2300,r,sd,T)
   prowizje <- 0.004*(abs(delta*S0) + abs(VCall(S0,2300,r,sd,T)))
@@ -39,13 +39,16 @@ delta.hedging.0 <- function(S0,r,sd,T,mean) {
   return (zwrot)
 }
 
-##### wywo³anie pojedyncze oraz histogram #####
+##### wywo?anie pojedyncze oraz histogram #####
 delta.hedging.0(dane.s0.WIG20,param.r,dane.sd.WIG20,param.T,dane.mean.WIG20)
 
 zwroty <- c()
 for(i in 1:1000) {
   zwroty <- c(zwroty,delta.hedging.0(dane.s0.WIG20,param.r,dane.sd.WIG20,param.T,dane.mean.WIG20))
 }
+
+
+zwroty <- rep()
 
 rysuj.histogram(zwroty)
 mean(zwroty)
@@ -61,7 +64,7 @@ K <- GCall(2700,2300,param.r,dane.sd.WIG20,param.T)/GBinPut(2700,2300,param.r,da
 d <- K*DBinPut(2700,2300,param.r,dane.sd.WIG20,param.T)-DCall(2700,2300,param.r,dane.sd.WIG20,param.T)
 plot(S,-DCall(S,2300,param.r,dane.sd.WIG20,param.T)+K*DBinPut(S,2300,param.r,dane.sd.WIG20,param.T)-d, xlab="kurs",ylab="delta",type='l')
 
-##### funkcja symyluj¹ca portfel #####
+##### funkcja symyluj?ca portfel #####
 gamma.hedging.1 <- function(S0,r,sd,T,mean,E) {
   K <- GCall(S0,2300,r,sd,T)/GBinPut(S0,E,r,sd,T)
   delta <- -DCall(S0,2300,r,sd,T) + K*DBinPut(S0,E,r,sd,T)
@@ -95,7 +98,7 @@ gamma.hedging.1 <- function(S0,r,sd,T,mean,E) {
   return (zwrot)
 }
 
-##### wywo³anie pojedyncze oraz histogram #####
+##### wywo?anie pojedyncze oraz histogram #####
 gamma.hedging.1(dane.s0.WIG20,param.r,dane.sd.WIG20,param.T,dane.mean.WIG20,2300)
 
 zwroty <- c()
@@ -112,14 +115,14 @@ sd(zwroty)
 
 
 ######################################################################
-# Podejscie II - 2 opcje binarne w takiej samej iloœci
+# Podejscie II - 2 opcje binarne w takiej samej ilo?ci
 ######################################################################
 ##### wykres delty #####
 K <- GCall(2700,2300,param.r,dane.sd.WIG20,param.T)/(GBinPut(2700,2300,param.r,dane.sd.WIG20,param.T)+GBinCall(2700,3100,param.r,dane.sd.WIG20,param.T))
 d <- K*DBinCall(2700,3100,param.r,dane.sd.WIG20,param.T)+K*DBinPut(2700,2300,param.r,dane.sd.WIG20,param.T)-DCall(2700,2300,param.r,dane.sd.WIG20,param.T)
 plot(S,-DCall(S,2300,param.r,dane.sd.WIG20,param.T)+K*DBinPut(S,2300,param.r,dane.sd.WIG20,param.T)+K*DBinCall(S,3100,param.r,dane.sd.WIG20,param.T)-d,xlab="kurs",ylab="delta", type='l')
 
-##### funkcja symyluj¹ca portfel #####
+##### funkcja symyluj?ca portfel #####
 gamma.hedging.2 <- function(S0,r,sd,T,mean,E1,E2) {
   K <- GCall(S0,2300,r,sd,T)/(GBinPut(S0,E1,r,sd,T)+GBinCall(S0,E2,r,sd,T))
   delta <- -DCall(S0,2300,r,sd,T) + K*(DBinPut(S0,E1,r,sd,T)+DBinCall(S0,E2,r,sd,T))
@@ -153,7 +156,7 @@ gamma.hedging.2 <- function(S0,r,sd,T,mean,E1,E2) {
   return (zwrot)
 }
 
-##### wywo³anie pojedyncze oraz histogram #####
+##### wywo?anie pojedyncze oraz histogram #####
 gamma.hedging.2(dane.s0.WIG20,param.r,dane.sd.WIG20,param.T,dane.mean.WIG20,2300,3100)
 
 zwroty <- c()
@@ -170,14 +173,14 @@ sd(zwroty)
  
 
 ######################################################################
-# Podejscie III - 2 opcje binarne w ró¿nej iloœci
+# Podejscie III - 2 opcje binarne w r??nej ilo?ci
 ######################################################################
 ##### wykres delty #####
 p <- optymalizuj.parametry.3(2700,param.T,dane.sd.WIG20,param.r)
 d <- p[[1]][1]*DBinPut(2700,2300,param.r,dane.sd.WIG20,param.T)+p[[1]][2]*DBinCall(2700,3100,param.r,dane.sd.WIG20,param.T)-DCall(2700,2300,param.r,dane.sd.WIG20,param.T)
 plot(S,-DCall(S,2300,param.r,dane.sd.WIG20,param.T)+p[[1]][1]*DBinPut(S,2300,param.r,dane.sd.WIG20,param.T)+p[[1]][2]*DBinCall(S,3100,param.r,dane.sd.WIG20,param.T)-d,xlab="kurs",ylab="delta", type='l')
 
-##### funkcje optymalizuj¹ce #####
+##### funkcje optymalizuj?ce #####
 
 amplituda.delty.3 <- function(S,t,sd,r,K1,L1) {
   min <- optimize(delta.portfela.3, interval=c(S*0.9,S*1.1),t,sd,r,K1,L1, maximum=FALSE)
@@ -210,7 +213,7 @@ delta.portfela.3 <- function(S,t,sd,r,K1,L1) {
   return (wynik)
 }
 
-##### funkcje symuluj¹ce portfel #####
+##### funkcje symuluj?ce portfel #####
 
 licz.prowizje.3 <- function(p,pp,S,r,sd,t) {
   wynik = abs(p[[1]][1]-pp[[1]][1])*VBinPut(S,2300,r,sd,t)
@@ -255,7 +258,7 @@ gamma.hedging.3 <- function(S0,r,sd,T,mean) {
   return (zwrot)
 }
 
-##### wywo³anie pojedyncze oraz histogram #####
+##### wywo?anie pojedyncze oraz histogram #####
 
 gamma.hedging.3(dane.s0.WIG20,param.r,dane.sd.WIG20,param.T,dane.mean.WIG20)
 
@@ -272,9 +275,9 @@ max(zwroty)
 aaa <- sort(zwroty)
 aaa
 ######################################################################
-# Podejscie IV - 10 opcji binarnych w ró¿nej iloœci
+# Podejscie IV - 10 opcji binarnych w r??nej ilo?ci
 ######################################################################
-##### funkcje optymalizuj¹ce #####
+##### funkcje optymalizuj?ce #####
 
 amplituda.delty.4 <- function(S,t,sd,r,K1,K2,K3,K4,K5,L1,L2,L3,L4,L5) {
   min <- optimize(delta.portfela.4, interval=c(S*0.9,S*1.1),t,sd,r,K1,K2,K3,K4,K5,L1,L2,L3,L4,L5, maximum=FALSE)
@@ -323,7 +326,7 @@ delta.portfela.4 <- function(S,t,sd,r,K1,K2,K3,K4,K5,L1,L2,L3,L4,L5) {
    return (wynik)
 }
  
-##### funkcja symuluj¹ca portfel #####
+##### funkcja symuluj?ca portfel #####
 
 licz.prowizje.4 <- function(p,pp,S,r,sd,t) {
   wynik = abs(p[[1]][1]-pp[[1]][1])*VBinPut(S,2300,r,sd,t)

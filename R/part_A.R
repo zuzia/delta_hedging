@@ -148,3 +148,83 @@ fun.eval.loss.reality <- function(liczba.rehedg, typ1, strike) {
                   T = 1,                   
                   typ2.param = dane.przyszle.WIG20[,5]) )
 }
+
+############ analiza wrażliwości ##############
+##############################################
+# zwraca ramke danych, w kolumnie pierwszej axis X, w kolejnych wartosci strat dla parametrów (r, mean, sd)
+# ile.dysk: ile punktów dyskretnych na przedziale od zera do parametr*mnoznik
+# typ1: 0 - call, 1 - put
+# mnoznik: zalozmy, ze ustawimy go na 3, a r = 4%. Wtedy bedziemy badac ten parametr na przedziale od 0% do 12%.
+
+fun.sensivity <- function(f.ile.dysk, f.liczba.iteracji, f.liczba.rehedg, f.typ1, f.strike, f.mnoznik) {
+  
+  d.r <- seq(from = 0, to = f.mnoznik*param.r, length.out = f.ile.dysk)
+  d.mean <- seq(from = 0, to = f.mnoznik*dane.mean.WIG20, length.out = f.ile.dysk)
+  d.sd <- seq(from = 0, to = f.mnoznik*dane.sd.WIG20, length.out = f.ile.dysk)
+  
+  d.res.r <- sapply(d.r,
+                    fun.eval.loss.preprocess1,
+                    liczba.iteracji = f.liczba.iteracji,
+                    liczba.rehedg = f.liczba.rehedg,
+                    typ1 = f.typ1,
+                    s = dane.s0.WIG20,
+                    strike = f.strike,
+                    sd = dane.sd.WIG20,
+                    T = param.T,
+                    mean = dane.mean.WIG20)
+  d.r.result <- c()
+  for(i in 1:f.ile.dysk) {
+    d.r.result <- c(d.r.result, mean(d.res.r[,i]))
+  }
+  
+  d.res.sd <- sapply(d.sd,
+                     fun.eval.loss.preprocess1,
+                     liczba.iteracji = f.liczba.iteracji,
+                     liczba.rehedg = f.liczba.rehedg,
+                     typ1 = f.typ1,
+                     s = dane.s0.WIG20,
+                     strike = f.strike,
+                     r = param.r,
+                     T = param.T,
+                     mean = dane.mean.WIG20)
+  d.sd.result <- c()
+  for(i in 1:f.ile.dysk) {
+    d.sd.result <- c(d.sd.result, mean(d.res.sd[,i]))
+  }
+  d.res.mean <- sapply(d.mean,
+                       fun.eval.loss.preprocess1,
+                       liczba.iteracji = f.liczba.iteracji,
+                       liczba.rehedg = f.liczba.rehedg,
+                       typ1 = f.typ1,
+                       s = dane.s0.WIG20,
+                       strike = f.strike,
+                       r = param.r,
+                       T = param.T,
+                       sd = dane.sd.WIG20)
+  d.mean.result <- c()
+  for(i in 1:f.ile.dysk) {
+    d.mean.result <- c(d.mean.result, mean(d.res.mean[,i]))
+  }
+  
+  d.x <- seq(from = 0, to = f.mnoznik, length.out = f.ile.dysk)
+  
+  d <- data.frame(axis.x.param = d.x, .mean = d.mean.result, .sd = d.sd.result, .rate = d.r.result)
+  
+  return (d)
+  
+}
+
+############ premia za ryzyko ##############
+##############################################
+fun.risk.premium <- function(f.strike = 2800, f.typ0 = 0, f.interations.no, f.rehedg.no = 31, f.kwantyle) {
+  
+  d1 <- fun.eval.loss.abstract(f.interations.no, f.rehedg.no, f.typ0, f.strike)
+  
+  cena.opcji <- fun.eval.option(f.typ0, dane.s0.WIG20, param.r, param.T, 0, dane.sd.WIG20, f.strike)
+  
+  d2 <- (-1)*quantile(d1, probs = f.kwantyle, names = FALSE)*exp(-param.r*param.T)
+  d3 <- d2/cena.opcji
+  d3 <- data.frame(x = f.kwantyle, y = d3, y2 = d2)
+  
+  return(d3)
+}
